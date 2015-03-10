@@ -1,0 +1,9 @@
+﻿@using Sitecore.Mvc
+@inherits System.Web.Mvc.WebViewPage
+@{
+    if (!Sitecore.Context.User.IsAuthenticated)
+    {
+        Response.Redirect("~/login");
+    }
+}
+@Html.Sitecore().Placeholder("backoffice_page_content")

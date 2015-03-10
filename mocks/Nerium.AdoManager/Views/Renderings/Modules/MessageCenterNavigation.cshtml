@@ -1,0 +1,134 @@
+﻿@using Sitecore.Globalization
+@model Sitecore.Mvc.Presentation.RenderingModel
+
+<ul>
+    @*<li class="count-container">
+        <a href="#" data-dropdown="header-messages" data-options="is_hover:false;">
+            <i class="fa fa-envelope"></i>
+            @Translate.Text("Messages")
+            <div class="count" data-ng-show="totalUnreadMessages > 0" data-ng-bind="totalUnreadMessages"></div>
+        </a>
+        <div id="header-messages" data-dropdown-content class="f-dropdown content" aria-hidden="true" tabindex="-1">
+            <div class="dropdown-body">
+                <header>
+                    @Translate.Text("My Messages")
+                    <a href="messages" class="right">@Translate.Text("New Message")</a>
+                </header>
+                <div>
+                    <div class="row" data-ng-click="openMessage(message)" id="header_notification_row" data-ng-repeat="message in messages | limitTo:20">
+                        <div class="small-2 column comment-avatar">
+                            <img src="~/assets/img/backoffice/avatar.png" alt="{{message.name}}'s Profile Image'" />
+                        </div>
+                        <div class="small-7 column">
+                            <div data-ng-bind="message.name"></div>
+                            <div data-ng-bind="message.post"></div>
+                        </div>
+                        <div class="small-3 column">
+                            <span data-ng-bind="message.lastupdated"></span>
+                        </div>
+                    </div>
+                </div>
+                <footer data-ng-controller="MessagesCtrl">
+                    <span><a href="/messages">@Translate.Text("View All")</a></span>
+                </footer>
+            </div>
+        </div>
+    </li>
+    <li class="count-container">
+        <a href="#" data-dropdown="header-notifications" data-options="is_hover:false">
+            <i class="fa fa-bell"></i>
+            @Translate.Text("Notifications")
+            <div class="count" data-ng-show="totalUnreadNotifications > 0" data-ng-bind="totalUnreadNotifications"></div>
+        </a>
+        <div id="header-notifications" data-dropdown-content class="f-dropdown content" aria-hidden="true" tabindex="-1">
+            <div class="dropdown-body">
+                <header>
+                    @Translate.Text("Notifications")
+                    <a href="settings/communications" class="right">@Translate.Text("Settings")</a>
+                </header>
+                <div>
+                    <ul class="small-block-grid-5 filters">
+                        <li><i class="fa fa-comment" data-ng-click="show('chatNotifications')" title="forum notifications"></i></li>
+                        <li><i class="fa fa-star" data-ng-click="show('rankNotifications')" title="rank advancements"></i></li>
+                        <li><i class="fa fa-user" data-ng-click="show('peopleNotifications')" title="new enrollments"></i></li>
+                        <li><i class="fa fa-file-text" data-ng-click="show('ordersNotifications')" title="new orders"></i></li>
+                        <li><i class="fa fa-reorder" data-ng-click="show('showAllNotifications')" title="show all"></i></li>
+                    </ul>
+                    <div class="row" data-ng-click="openNotification(notification)" id="header_notification_row" data-ng-repeat="notification in notificationsChat | limitTo:20" data-ng-show="chatNotificationsVisible">
+                        <div class="small-2 column comment-avatar">
+                            <img src="~/assets/img/backoffice/avatar.png" alt="{{notification.name}}'s Profile Image'" />
+                        </div>
+                        <div class="small-7 column">
+                            <div data-ng-bind="notification.name"></div>
+                            <div data-ng-bind="notification.post"></div>
+                        </div>
+                        <div class="small-3 column">
+                            <span data-ng-bind="notification.lastupdated"></span>
+                        </div>
+                    </div>
+                    <div class="row" data-ng-click="openNotification(notification)" id="header_notification_row" data-ng-repeat="notification in notificationsRank" data-ng-show="rankNotificationsVisible">
+                        <div class="small-2 column comment-avatar">
+                            <img src="~/assets/img/backoffice/avatar.png" alt="{{notification.name}}'s Profile Image'" />
+                        </div>
+                        <div class="small-7 column">
+                            <span data-ng-bind="notification.name"></span>
+                            <span data-ng-bind="notification.post"></span>
+                        </div>
+                        <div class="small-3 column">
+                            <span data-ng-bind="notification.lastupdated"></span>
+                        </div>
+                    </div>
+                    <div class="row" data-ng-click="openNotification(notification)" id="header_notification_row" data-ng-repeat="notification in notificationsPeople" data-ng-show="peopleNotificationsVisible">
+                        <div class="small-2 column comment-avatar">
+                            <img src="~/assets/img/backoffice/avatar.png" alt="{{notification.name}}'s Profile Image'" />
+                        </div>
+                        <div class="small-7 column">
+                            <div data-ng-bind="notification.name"></div>
+                            <div data-ng-bind="notification.post"></div>
+                        </div>
+                        <div class="small-3 column">
+                            <span data-ng-bind="notification.lastupdated"></span>
+                        </div>
+                    </div>
+                    <div class="row" data-ng-click="openNotification(notification)" id="header_notification_row" data-ng-repeat="notification in notificationsOrders" data-ng-show="ordersNotificationsVisible">
+                        <div class="small-2 column comment-avatar">
+                            <img src="~/assets/img/backoffice/avatar.png" alt="{{notification.name}}'s Profile Image'" />
+                        </div>
+                        <div class="small-7 column">
+                            <div data-ng-bind="notification.name"></div>
+                            <div data-ng-bind="notification.post"></div>
+                        </div>
+                        <div class="small-3 column">
+                            <span data-ng-bind="notification.lastupdated"></span>
+                        </div>
+                    </div>
+                </div>
+                <footer data-ng-controller="NotificationCtrl">
+                    <span data-ng-if="notificationsChat.length > 2 || notificationsRank.length > 2 || notificationsPeople.length > 2 || notificationsOrders.length > 2">
+                        <a href="/notifications">@Translate.Text("View All")</a>
+                    </span>
+                </footer>
+            </div>
+        </div>
+    </li>
+    <li>
+        <a class="popover user" href="#" data-popover-selector="#header_user_profile_template" data-popover-at="bottom center" data-popover-classes="header-user-profile">
+            Hi, <span>@Sitecore.Context.User.Profile.FullName</span>            
+        </a>
+        <div id="header_user_profile_template" class="hide">
+            @Html.Sitecore().Placeholder("backoffice_user_popover")
+        </div>
+    </li>
+    <li>
+        <a href="#" data-dropdown="language-selection" data-options="is_hover:false">
+            <span>@Sitecore.Context.User.Profile.ClientLanguage</span>     
+            ENGLISH       
+        </a>
+        <div id="language-selection" data-dropdown-content class="f-dropdown content" aria-hidden="true" tabindex="-1">
+            <div class="dropdown-body">
+            </div>
+        </div>
+    </li>*@
+
+    @Html.Sitecore().Placeholder("backoffice_top_navagation")
+</ul>

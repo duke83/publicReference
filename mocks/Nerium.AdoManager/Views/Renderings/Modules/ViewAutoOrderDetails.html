@@ -1,0 +1,173 @@
+﻿<div data-ng-controller="ViewAdoDetailsCtrl" data-ng-init="init(1652291, 10098, 'False')" class="ado-details">
+    <div data-ng-if="saving || calculating" class="full-cover">
+        <div>
+            <i class="fa fa-spin fa-spinner"></i>
+            <span data-ng-if="saving">Saving......</span>
+            <span data-ng-if="calculating">Calculating...</span>
+        </div>
+    </div>
+    <div data-alert class="alert-box nerium-success-alert" data-ng-if="saveSuccess && !viewOnly">
+        Your Auto Delivery Order has been updated.
+    </div>
+    <div data-alert class="alert-box alert" data-ng-if="saveFail && !viewOnly">
+        There was a problem saving your Auto Order. Please try again.
+    </div>
+    <div data-alert class="alert-box alert" data-ng-if="calculateFail && !viewOnly">
+        There was an error re-calculating your Auto Order. Please try again.
+    </div>
+    <div data-alert class="alert-box alert" data-ng-if="nightCreamRequired && !viewOnly">
+        In order to add a Day Cream NeriumAD Age-Defying Treatment you must have a NeriumAD Age-Defying Night Treatment.
+        Please select a NeriumAD Age-Defying Night Treatment product from the list of products below.
+    </div>
+    <table class="small-12">
+        <thead>
+        <tr>
+            <th>Product</th>
+            <th></th>
+            <th class="text-center">ADV</th>
+            <th class="text-center">Quantity</th>
+            <th class="text-center">Total Price</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr data-ng-repeat="item in autoOrderDetail.autoOrderItems | orderBy: item.orderLineId">
+            <td>
+                <img data-ng-src="{{item.imageUrl}}"/>
+            </td>
+            <td data-ng-bind="item.description"></td>
+            <td class="text-center" data-ng-bind="item.businessVolume"></td>
+            <td class="text-center">
+                <span data-ng-bind="item.quantity" data-ng-if="viewOnly"></span>
+                <!-- TODO: move this to a directive-->
+                <div data-ng-if="!viewOnly" class="number-spinner">
+                    <i class="fa fa-angle-down" data-ng-disabled="saving || calculating"
+                       data-ng-click="updateQuantity(item, -1)" data-ng-class="{ disabled: calculating }"></i>
+                    <input numbers-only data-ng-diabled="saving || calculating" data-ng-model="item.quantity"
+                           data-ng-change="quantityUpdated(item)"/>
+                    <i class="fa fa-angle-up" data-ng-disabled="saving || calculating"
+                       data-ng-click="updateQuantity(item, 1)" data-ng-class="{ disabled: calculating }"></i>
+                </div>
+            </td>
+            <td class="text-center" data-ng-bind="item.priceTotal | currencyByLocale"></td>
+        </tr>
+        <tr data-ng-if="!viewOnly">
+            <td colspan="1" class="blue-text">
+                <span data-ng-click="confirmCancel()">Edit ADO Options <i class="fa fa-angle-right"></i></span>
+            </td>
+            <td colspan="2">
+                <div class="auto-order-process-now" data-ng-if="isDirty && orderHasMore()">
+                    <input id="processNow-{{autoOrderDetail.autoOrderId}}" type="checkbox"
+                           data-ng-model="checkbox.processNow"/>
+                    <label for="processNow-{{autoOrderDetail.autoOrderId}}">Apply your increased ADV by creating an
+                        order for the increased quantity/added item(s) now?</label>
+                </div>
+            </td>
+            <td colspan="2" class="text-right">
+                <button type="button" class="button tiny no-margin" data-ng-if="isDirty" data-ng-disabled="saving"
+                        data-ng-click="updateAutoOrder()">Save Changes
+                </button>
+                <button type="button" class="button tiny no-margin" data-ng-if="isDirty" data-ng-disabled="saving"
+                        data-ng-click="sanitizeAutoOrder();">Discard Changes
+                </button>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+    <div class="row">
+        <div class="small-12 medium-2 columns">
+            ADO #: <span class="adoValue" data-ng-bind="autoOrderDetail.autoOrderId"></span>
+        </div>
+        <div class="small-12 medium-2 columns">
+            ADV: <span class="adoValue" data-ng-bind="autoOrderDetail.businessVolumeTotal"></span>
+        </div>
+        <div class="small-12 medium-2 columns">
+            Shipping Address:
+        </div>
+        <div class="small-12 medium-3 columns">
+            <div class="small-12 text-left adoValue" data-ng-bind="autoOrderDetail.shipTo.address1"></div>
+            <div data-ng-if="autoOrderDetail.address2" class="small-12 adoValue"
+                 data-ng-bind="autoOrderDetail.shipTo.address1"></div>
+            <div class="small-12 adoValue"
+                 data-ng-bind-template="{{autoOrderDetail.shipTo.city}}, {{autoOrderDetail.shipTo.state}} {{autoOrderDetail.shipTo.zip}}"></div>
+            <div class="small-12 adoValue" data-ng-bind="autoOrderDetail.shipTo.country"></div>
+        </div>
+        <div class="small-12 medium-3 columns">
+            <div class="small-12" data-ng-cloak>
+                SUBTOTAL ({{getItemCount()}} ITEMS)
+                <span class="right adoValue" data-ng-bind="autoOrderDetail.subTotal | currencyByLocale"></span>
+            </div>
+            <div class="small-12">
+                SALES TAX
+                <span class="right adoValue" data-ng-bind="autoOrderDetail.taxTotal | currencyByLocale"></span>
+            </div>
+            <div class="small-12">
+                SHIPPING
+                <span class="right adoValue" data-ng-bind="autoOrderDetail.shippingTotal | currencyByLocale"></span>
+            </div>
+        </div>
+    </div>
+    <div class="row order-total">
+        <div class="small-12 medium-offset-9 medium-3 columns">
+            <div class="small-12">
+                ORDER TOTAL
+                <span class="right adoValue" data-ng-bind="autoOrderDetail.total | currencyByLocale"></span>
+            </div>
+        </div>
+    </div>
+    <div data-ng-if="!viewOnly" class="row auto-side-margin">
+        <!--TO DO: JO - Test if this line below goes above the div or where it is at-->
+        <p>
+
+        <p>All Auto-Delivery Orders are processed between the 1st and the 23rd of each month. Your Auto-Delivery Order
+            will be processed and shipped starting next month, on the same day of the month that your original order was
+            processed, unless your original order was placed after the 23rd of the month. In that case, it will process
+            and ship on the 23rd of next month.</p></p>
+        <button data-ng-show="hasVisibleProducts()"
+                data-ng-click="autoOrderDetail.productListExpanded = !autoOrderDetail.productListExpanded" type="button"
+                class="button tiny text-left small-12">
+            ADD NEW ITEM TO ADO<i class="right fa"
+                                  data-ng-class="{ 'fa-sort-desc': !autoOrderDetail.productListExpanded, 'fa-sort-asc': autoOrderDetail.productListExpanded }"></i>
+        </button>
+        <div id="add-products-{{autoOrderDetail.autoOrderId}}" class="contentwrap"
+             data-ng-show="autoOrderDetail.productListExpanded">
+        </div>
+    </div>
+    <div data-ng-if="!viewOnly" id="confirmation-modal-{{autoOrderDetail.autoOrderId}}"
+         class="reveal-modal tiny confirmation-modal" data-reveal>
+        <header data-ng-switch="modalCtrl">
+            <div data-ng-switch-when="remove">Remove Item</div>
+            <div data-ng-switch-when="cancel">Cancel Auto Order</div>
+            <div data-ng-switch-when="day-cream-remove">Remove Day Cream</div>
+        </header>
+        <div data-ng-switch="modalMessageCtrl">
+            <div data-ng-switch-when="day-cream-cancel">Please note that in order to keep the NeriumAD Age-Defying Day
+                Cream in your ADO, you must have a NeriumAD Age-Defying Night Treatment. Do you want to continue and
+                cancel this order?
+            </div>
+            <div data-ng-switch-when="day-cream-remove">Please note that in order to keep the NeriumAD Age-Defying Day
+                Cream in your ADO, you must have a NeriumAD Age-Defying Night Treatment. Do you want to continue and
+                remove both the Day and Night NeriumAD Age-Defying Treatments?
+            </div>
+            <div data-ng-switch-when="remove">This will remove this item from your Auto Order. Do you wish to
+                continue?
+            </div>
+            <div data-ng-switch-when="remove-cancel">By removing your items, you will be cancelling this Auto Delivery
+                Order. If you do not have other Auto delivery orders you will be ineligible for certain Bonus
+                Qualifications. Would you like to cancel this Auto-Delivery Order?
+            </div>
+            <div data-ng-switch-when="cancel">Would you like to cancel this Auto-Delivery Order?</div>
+        </div>
+        <footer data-ng-switch="modalCtrl">
+            <button type="button" class="button tiny right radius" data-ng-click="sanitizeAutoOrder()">No</button>
+            <button type="button" class="button tiny right radius" data-ng-switch-when="remove"
+                    data-ng-click="updateAutoOrder()">Yes
+            </button>
+            <button type="button" class="button tiny right radius" data-ng-switch-when="day-cream-remove"
+                    data-ng-click="removeDayCream()">Yes
+            </button>
+            <button type="button" class="button tiny right radius" data-ng-switch-default="isCancelAutoOrder"
+                    data-ng-click="cancelAutoOrder()">Yes
+            </button>
+        </footer>
+    </div>
+</div>

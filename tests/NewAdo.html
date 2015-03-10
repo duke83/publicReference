@@ -1,0 +1,647 @@
+<!DOCTYPE html>
+<html data-ng-app="staticUiDev" lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Auto Delivery Manager</title>
+    <link href='http://fonts.googleapis.com/css?family=Source+Sans+Pro:200,300,400,600,700,900,200italic,300italic,400italic,600italic,700italic,900italic'
+          rel='stylesheet' type='text/css'>
+    <link href="../../Nerium.Global.Web/assets/css/adomanager/main.css" rel="stylesheet"/>
+    <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.1.0/css/font-awesome.min.css" rel="stylesheet">
+    <link href="../../Nerium.Global.Web/assets/vendor/qtip2/jquery.qtip.css" rel="stylesheet"/>
+</head>
+<body>
+
+<button ng-click="clickme()" data-ng-controller="test">button</button>
+
+<main id="page-wrap">
+
+    <header>
+        <nav class="top-nav" data-topbar data-options="sticky_on: large" data-ng-controller="MessagesCtrl">
+            <ul>
+
+
+                <li>
+                    <div class="user">
+                        Hi, <span>Master Developer</span>
+                    </div>
+                </li>
+
+                <li class="accent">
+                    <a href="http://office.updev.com/en/ado-manager/login" DisableLinkDescription="True"
+                       DisableWebEdit="True">
+                        Log Out
+                    </a>
+                </li>
+
+            </ul>
+        </nav>
+        <nav class="top-bar">
+            <section class="top-right-nav">
+
+            </section>
+            <a href="/">
+                <div class="main-logo-nerium">&nbsp;</div>
+            </a>
+            <section class="top-bar-section">
+
+            </section>
+        </nav>
+    </header>
+
+    <section class="one-column">
+
+
+        <div class="page-content"></div>
+        <div class="page-content"></div>
+
+
+    </section>
+    <div class="row" data-ng-controller="ViewAllActiveAdosCtrl" data-ng-init="init(10098, 'Auto Order')">
+        <div data-alert class="alert-box success" data-ng-if="autoOrderCancelled">
+            Auto-Delivery Order Successfully Cancelled.
+        </div>
+        <div class="small-12 columns adoContainer"
+             ng-class="autoOrder.isSelected ? 'adoContainer-selected':'adoContainer-notSelected'"
+             data-ng-repeat="autoOrder in autoOrders">
+            <div data-ng-click="selectAdo(autoOrder)" data-ng-switch="ccStatus">
+                <span data-ng-bind="autoOrder.autoOrderDescription" class="autoOrderTitle"></span>
+                <i data-ng-click="openToBilling(autoOrder, $event)" data-ng-switch-when="expiring"
+                   class="fa fa-exclamation-circle red-text pad-left-1"
+                   title=" your credit card is about to expire."></i>
+                <i data-ng-click="openToBilling(autoOrder, $event)" data-ng-switch-when="expired"
+                   class="fa fa-exclamation-circle red-text pad-left-1" title=" your credit card has expired."></i>
+                        <span>
+                            <a class="right">
+                                View Details<i class="fa pad-left-1"
+                                               data-ng-class="{ 'fa-sort-desc': !autoOrder.isSelected, 'fa-sort-asc': autoOrder.isSelected }"></i>
+                            </a>
+                        </span>
+            </div>
+            <hr class="adoHr"/>
+            <div class="auto-order-details">
+                <div class="small-4 columns">
+                    ADO Cost: <span data-ng-bind="autoOrder.total | currencyByLocale" class="adoValue"></span>
+                </div>
+                <div class="small-4 columns">
+                    ADV: <span data-ng-bind="autoOrder.businessVolumeTotal" class="adoValue"></span>
+                </div>
+                <div class="small-4 columns">Next Run Date: <span
+                        data-ng-bind="autoOrder.nextRunDate | dateByLocale: 'short'" class="adoValue"></span></div>
+            </div>
+
+            <div data-ng-show="autoOrder.isSelected">
+                <tabset class="show-for-medium-up">
+                    <tab heading="Auto Order Details" select="loadDetails($index)"></tab>
+                    <tab heading="Shipping Details" select="loadShipping($index)"></tab>
+                    <tab heading="Billing Details" select="loadBilling($index)"></tab>
+                    <tab heading="Auto Order History" select="loadHistory($index)"></tab>
+                </tabset>
+                <ul id="orbit-list-{{autoOrder.autoOrderId}}" class="auto-order-orbit-content" data-orbit
+                    data-options="slide_number: false;timer:false;next_on_click: false;swipe: true;bullets:false;circular: true;variable_height: true;navigation_arrows:false;">
+                    <li data-orbit-slide="details" class="tabs-content orbit-content">
+                        <span class="show-for-small-only text-center">Auto Order Details</span>
+
+                        <div id="details-{{$index}}" class="contentwrap"></div>
+                        <a class="orbit-prev mSlider disabled show-for-small-only"><span></span></a>
+                        <a class="orbit-next mSlider show-for-small-only" ng-click="loadShipping($index)"><span></span></a>
+                    </li>
+                    <li data-orbit-slide="shipping" class="tabs-content orbit-content">
+                        <span class="show-for-small-only text-center">Shipping Details</span>
+
+                        <div id="shipping-{{$index}}" class="contentwrap"></div>
+                        <a class="orbit-prev mSlider show-for-small-only"
+                           ng-click="loadDetails($index)"><span></span></a>
+                        <a class="orbit-next mSlider show-for-small-only"
+                           ng-click="loadBilling($index)"><span></span></a>
+                    </li>
+                    <li data-orbit-slide="billing" class="tabs-content orbit-content">
+                        <span class="show-for-small-only text-center">Billing Details</span>
+
+                        <div id="billing-{{$index}}" class="contentwrap"></div>
+                        <a class="orbit-prev mSlider show-for-small-only" ng-click="loadShipping($index)"><span></span></a>
+                        <a class="orbit-next mSlider show-for-small-only"
+                           ng-click="loadHistory($index)"><span></span></a>
+                    </li>
+                    <li data-orbit-slide="history" class="tabs-content orbit-content">
+                        <span class="show-for-small-only text-center">Auto Order History</span>
+
+                        <div id="history-{{$index}}" class="contentwrap"></div>
+                        <a class="orbit-prev mSlider show-for-small-only"
+                           ng-click="loadBilling($index)"><span></span></a>
+                        <a class="orbit-next mSlider disabled show-for-small-only"><span></span></a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+        <div id="save-changes-confirmation-modal" class="confirmation-modal reveal-modal tiny" data-reveal>
+            <header>
+                <div>Save Changes</div>
+            </header>
+            <div>You have changed details of your Auto Order. Please, save or discard them before proceeding to the next
+                tab.
+            </div>
+            <footer>
+                <button type="button" class="button tiny right radius" data-ng-click="closeTabSave()">OK</button>
+            </footer>
+        </div>
+
+    </div>
+    <div ng-controller="newAdoCtrl">
+        <div class="row">
+            <div class="adoContainer small-12 columns">
+                <button ng-class="{'disabled':newAdoService.isActive}" ng-click="newAdoService.isActive=true">Add New
+                    Auto Delivery Order<i class="fa fa-plus-circle"></i></button>
+            </div>
+        </div>
+        <div class="row">
+            <div ng-show="newAdoService.isActive" class="adoContainer small-12 adoContainer-selected columns">
+
+
+                <!--TAB BUTTONS-->
+                <table class="tabbuttontable">
+                    <tr>
+                        <td ng-repeat="tab in newAdoService.tabs" ng-bind="tab.text"
+
+                            ng-class="{'tabbuttonselected':tab.selected}"></td>
+                    </tr>
+                </table>
+
+
+                <!--AUTO ORDER DETAILS-->
+                <div id="autoOrderDetailsContainer" class="contentContainer"
+                     ng-show="newAdoService.selectedTab().text=='Auto Order Details'" ng-controller="NewAdoDetailsCtrl">
+                    <div id="newAdoDetails"></div>
+                    <div id="newAdoAllProducts" ng-show="autoOrderDetail.productListExpanded"></div>
+                </div>
+
+
+                <!--SHIPPING DETAILS-->
+                <div id="shippingDetailsContainer" class="contentContainer"
+                     ng-show="newAdoService.selectedTab().text=='Shipping Details'">
+                    <h4>Shipping Details </h4>
+
+                </div>
+
+
+                <!--BILLING DETAILS-->
+                <div id="billingDetailsContainer" class="contentContainer"
+                     ng-show="newAdoService.selectedTab().text=='Billing Details'">
+                    <h4>BillingDetails </h4>
+
+                </div>
+
+
+                <!--BUTTONS-->
+                <button ng-click="newAdoService.clickBack()">Back</button>
+                <button ng-click="newAdoService.clickNext()">Next</button>
+                <button ng-click="newAdoService.clickSave()">Save</button>
+                <button ng-click="newAdoService.clickCancel()">Cancel</button>
+
+
+            </div>
+        </div>
+    </div>
+
+</main>
+
+<footer>
+    <div class="footer">
+        <div class="footer-primary-nav">
+            <div class="row">
+                <div class="footer-primary-links small-12 medium-12 large-5 columns">
+                    <ul>
+                        <li>
+                            <a href="http://office.updev.com/en/nerium-us/home/events" DisableLinkDescription="True"
+                               DisableWebEdit="True">
+                                Events
+                            </a>
+                        </li>
+                        <li>
+                            <a href="http://office.updev.com/en/nerium-us/home/blog" DisableLinkDescription="True"
+                               DisableWebEdit="True">
+                                Blog
+                            </a>
+                        </li>
+                        <li>
+                            <a href="http://office.updev.com/en/privacy-policy" DisableLinkDescription="True"
+                               DisableWebEdit="True">
+                                Privacy Policy
+                            </a>
+                        </li>
+                        <li>
+                            <a href="http://office.updev.com/en/nerium-us/home/careers" DisableLinkDescription="True"
+                               DisableWebEdit="True">
+                                Careers
+                            </a>
+                        </li>
+                        <li>
+                            <a href="http://office.updev.com/en/nerium-us/home/returns" DisableLinkDescription="True"
+                               DisableWebEdit="True">
+                                Returns
+                            </a>
+                        </li>
+                        <li>
+                            <a href="http://office.updev.com/en/terms-and-conditions" DisableLinkDescription="True"
+                               DisableWebEdit="True">
+                                Terms and Conditions
+                            </a>
+                        </li>
+                        <li>
+                            <a href="http://office.updev.com/en/nerium-us/home/emailsignup"
+                               DisableLinkDescription="True" DisableWebEdit="True">
+                                Email Sign Up
+                            </a>
+                        </li>
+                        <li>
+                            <a href="http://office.updev.com/en/nerium-us/home/cancellations"
+                               DisableLinkDescription="True" DisableWebEdit="True">
+                                Cancellations
+                            </a>
+                        </li>
+                        <li>
+                            <a href="http://office.updev.com/en/nerium-us/home/dsa-of-ethics"
+                               DisableLinkDescription="True" DisableWebEdit="True">
+                                DSA of Ethics
+                            </a>
+                        </li>
+                        <li>
+                            <a href="http://office.updev.com/en/nerium-us/home/faq" DisableLinkDescription="True"
+                               DisableWebEdit="True">
+                                FAQ
+                            </a>
+                        </li>
+                        <li>
+                            <a href="http://office.updev.com/en/nerium-us/home/spam-policy"
+                               DisableLinkDescription="True" DisableWebEdit="True">
+                                Spam Policy
+                            </a>
+                        </li>
+                        <li>
+                            <a href="http://tel:+18001637486" DisableLinkDescription="True" title="Call Nerium"
+                               DisableWebEdit="True">
+                                1-800-1NERIUM (637-486)
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="country-options small-12 medium-12 large-3 columns right">
+                    <div class="row">
+                        <ul class="countries-list">
+                            <li><a href="http://www.nerium.com">www.nerium.com</a></li>
+                        </ul>
+                    </div>
+                </div>
+
+                <hr class="show-for-medium-only"/>
+
+                <div class="social-network-links medium-9 large-4 columns">
+                    <div class="row">
+                        <span class="hide-for-small subheader medium-3 medium-only-text-right large-12 columns">VISIT US ON:</span>
+
+                        <ul class="small-12 medium-9 large-12 columns">
+                            <li>
+                                <a href="https://twitter.com/neriumintl/" DisableLinkDescription="True" title="Twitter"
+                                   DisableWebEdit="True" class="font-icon-twitter" target="_blank">
+
+                                </a>
+                            </li>
+                            <li>
+                                <a href="https://www.facebook.com/NeriumIntl" DisableLinkDescription="True"
+                                   title="Facebook" DisableWebEdit="True" class="font-icon-facebook" target="_blank">
+
+                                </a>
+                            </li>
+                            <li>
+                                <a href="https://www.youtube.com/user/NeriumIntl" DisableLinkDescription="True"
+                                   title="YouTube" DisableWebEdit="True" class="font-icon-youtube" target="_blank">
+
+                                </a>
+                            </li>
+                            <li>
+                                <a href="http://www.pinterest.com/neriumintl/" DisableLinkDescription="True"
+                                   title="Pinterest" DisableWebEdit="True" class="font-icon-pinterest" target="_blank">
+
+                                </a>
+                            </li>
+                            <li>
+                                <a href="https://plus.google.com/+NeriumIntl" DisableLinkDescription="True"
+                                   title="Google" DisableWebEdit="True" class="font-icon-google" target="_blank">
+
+                                </a>
+                            </li>
+                            <li>
+                                <a href="http://www.linkedin.com/company/nerium-international/"
+                                   DisableLinkDescription="True" title="Linkedin" DisableWebEdit="True"
+                                   class="font-icon-linkedin" target="_blank">
+
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <p class="copyright right">&#169; 2014 Nerium International.</p>
+            </div>
+        </div>
+    </div>
+</footer>
+
+
+<div id="main-modal" class="reveal-modal" data-reveal>
+    <header>
+        <a class="close-reveal-modal">&#215;</a>
+    </header>
+    <div id="modal-content"></div>
+</div>
+
+<script src="../../Nerium.Global.Web/assets/vendor/jquery/dist/jquery.min.js"></script>
+<script src="../../Nerium.Global.Web/assets/vendor/foundation/js/foundation.min.js"></script>
+<script src="../../Nerium.Global.Web/assets/vendor/foundation/js/foundation/foundation.equalizer.js"></script>
+<script src="../../Nerium.Global.Web/assets/vendor/foundation/js/foundation/foundation.alert.js"></script>
+<script src="../../Nerium.Global.Web/assets/vendor/angular.js"></script>
+<script src="../../Nerium.Global.Web/assets/vendor/angular-resource.js"></script>
+<script src="../../Nerium.Global.Web/assets/vendor/angular-foundation/mm-foundation.js"></script>
+<script src="../../Nerium.Global.Web/assets/vendor/ng-infinite-scroll.min.js"></script>
+<script src="../../Nerium.Global.Web/assets/vendor/angular-local-storage/angular-local-storage.js"></script>
+<script src="../../Nerium.Global.Web/assets/vendor/qtip2/jquery.qtip.min.js"></script>
+<script src="../../Nerium.Global.Web/assets/vendor/moment/moment-with-locales.js"></script>
+<script src="../../Nerium.Global.Web/assets/vendor/angular-http-loader/angular-http-loader.js"></script>
+<script src="../../Nerium.Global.Web/assets/vendor/modernizr/modernizr.js"></script>
+
+<script src="../../Nerium.Global.Web/assets/js/backoffice/popover.js"></script>
+<script src="../../Nerium.Global.Web/assets/js/backoffice/main.js"></script>
+<script src="../../Nerium.Global.Web/assets/vendor/Chart.min.js"></script>
+<script src="../../Nerium.Global.Web/assets/vendor/angles.js"></script>
+<script src="../../Nerium.Global.Web/assets/vendor/angular-sanitize.js"></script>
+<script src="../../Nerium.Global.Web/assets/vendor/angular-foundation/mm-foundation-tpls.js"></script>
+<script src="../../Nerium.Global.Web/assets/vendor/CKEditor/ckeditor.js"></script>
+<script src="../../Nerium.Global.Web/assets/vendor/angular-ui-select.js"></script>
+
+<!-- ISOLATED UI DEV VENDOR SCRIPTS START -->
+<script src="../app/vendor/angular-mocks/angular-mocks.js"></script>
+<!-- ISOLATED UI DEV VENDOR SCRIPTS END -->
+
+<script src="../../Nerium.BackOffice.Web/Nerium.BackOffice/app/app.js"></script>
+<script src="../../Nerium.BackOffice.Web/Nerium.BackOffice/app/controllers/activityFeedCtrl.js"></script>
+<script src="../../Nerium.BackOffice.Web/Nerium.BackOffice/app/controllers/communicationCtrl.js"></script>
+<script src="../../Nerium.BackOffice.Web/Nerium.BackOffice/app/controllers/contactProfileCtrl.js"></script>
+<script src="../../Nerium.BackOffice.Web/Nerium.BackOffice/app/controllers/downlineMenuCtrl.js"></script>
+<script src="../../Nerium.BackOffice.Web/Nerium.BackOffice/app/controllers/goalsProfileCtrl.js"></script>
+<script src="../../Nerium.BackOffice.Web/Nerium.BackOffice/app/controllers/locationsProfileCtrl.js"></script>
+<script src="../../Nerium.BackOffice.Web/Nerium.BackOffice/app/controllers/messagesCtrl.js"></script>
+<script src="../../Nerium.BackOffice.Web/Nerium.BackOffice/app/controllers/myCommissionsCtrl.js"></script>
+<script src="../../Nerium.BackOffice.Web/Nerium.BackOffice/app/controllers/notificationCtrl.js"></script>
+<script src="../../Nerium.BackOffice.Web/Nerium.BackOffice/app/controllers/paymentCardsCtrl.js"></script>
+<script src="../../Nerium.BackOffice.Web/Nerium.BackOffice/app/controllers/placementSuiteCtrl.js"></script>
+<script src="../../Nerium.BackOffice.Web/Nerium.BackOffice/app/controllers/profileHeaderCtrl.js"></script>
+<script src="../../Nerium.BackOffice.Web/Nerium.BackOffice/app/controllers/reportPeriodSelectorCtrl.js"></script>
+<script src="../../Nerium.BackOffice.Web/Nerium.BackOffice/app/controllers/sponsorTreeChartsCtrl.js"></script>
+<script src="../../Nerium.BackOffice.Web/Nerium.BackOffice/app/controllers/userDetailsCtrl.js"></script>
+<script src="../../Nerium.BackOffice.Web/Nerium.BackOffice/app/controllers/assetRepository/categoryListCtrl.js"></script>
+<script src="../../Nerium.BackOffice.Web/Nerium.BackOffice/app/controllers/assetRepository/hotTopicsCtrl.js"></script>
+<script src="../../Nerium.BackOffice.Web/Nerium.BackOffice/app/controllers/assetRepository/viewItemCtrl.js"></script>
+<script src="../../Nerium.BackOffice.Web/Nerium.BackOffice/app/controllers/assetRepository/viewItemsCtrl.js"></script>
+<script src="../../Nerium.BackOffice.Web/Nerium.BackOffice/app/controllers/commerce/basketSummaryCtrl.js"></script>
+<script src="../../Nerium.BackOffice.Web/Nerium.BackOffice/app/controllers/commerce/reviewShoppingBasketCtrl.js"></script>
+<script src="../../Nerium.BackOffice.Web/Nerium.BackOffice/app/controllers/commerce/shoppingBasketCtrl.js"></script>
+<script src="../../Nerium.BackOffice.Web/Nerium.BackOffice/app/controllers/commerce/shoppingProductListCtrl.js"></script>
+<script src="../../Nerium.BackOffice.Web/Nerium.BackOffice/app/controllers/commerce/checkout/billingCheckoutCtrl.js"></script>
+<script src="../../Nerium.BackOffice.Web/Nerium.BackOffice/app/controllers/commerce/checkout/checkoutCtrl.js"></script>
+<script src="../../Nerium.BackOffice.Web/Nerium.BackOffice/app/controllers/commerce/checkout/shippingCheckoutCtrl.js"></script>
+<script src="../../Nerium.BackOffice.Web/Nerium.BackOffice/app/controllers/Messaging/internalMessagingCtrl.js"></script>
+<script src="../../Nerium.BackOffice.Web/Nerium.BackOffice/app/controllers/reports/adoTrackerReportCtrl.js"></script>
+<script src="../../Nerium.BackOffice.Web/Nerium.BackOffice/app/controllers/reports/advReportCtrl.js"></script>
+<script src="../../Nerium.BackOffice.Web/Nerium.BackOffice/app/controllers/reports/bonusCommissionsReportCtrl.js"></script>
+<script src="../../Nerium.BackOffice.Web/Nerium.BackOffice/app/controllers/reports/fsqTrackerReportCtrl.js"></script>
+<script src="../../Nerium.BackOffice.Web/Nerium.BackOffice/app/controllers/reports/gqvReportCtrl.js"></script>
+<script src="../../Nerium.BackOffice.Web/Nerium.BackOffice/app/controllers/reports/iPadReportCtrl.js"></script>
+<script src="../../Nerium.BackOffice.Web/Nerium.BackOffice/app/controllers/reports/lexusTrackerReportCtrl.js"></script>
+<script src="../../Nerium.BackOffice.Web/Nerium.BackOffice/app/controllers/reports/myTeamReportCtrl.js"></script>
+<script src="../../Nerium.BackOffice.Web/Nerium.BackOffice/app/controllers/reports/neriumEdgeTrackerReportCtrl.js"></script>
+<script src="../../Nerium.BackOffice.Web/Nerium.BackOffice/app/controllers/reports/personallySponsoredCustomersReportCtrl.js"></script>
+<script src="../../Nerium.BackOffice.Web/Nerium.BackOffice/app/controllers/reports/personallySponsoredReportCtrl.js"></script>
+<script src="../../Nerium.BackOffice.Web/Nerium.BackOffice/app/controllers/reports/personalNewStartsReportCtrl.js"></script>
+<script src="../../Nerium.BackOffice.Web/Nerium.BackOffice/app/controllers/reports/placementSuiteReportCtrl.js"></script>
+<script src="../../Nerium.BackOffice.Web/Nerium.BackOffice/app/controllers/reports/pqvReportCtrl.js"></script>
+
+<script src="../../Nerium.BackOffice.Web/Nerium.BackOffice/app/controllers/reports/recentOrdersReportCtrl.js"></script>
+<script src="../../Nerium.BackOffice.Web/Nerium.BackOffice/app/controllers/reports/teamNewStartsReportCtrl.js"></script>
+<script src="../../Nerium.BackOffice.Web/Nerium.BackOffice/app/controllers/reports/volumesReportCtrl.js"></script>
+<script src="../../Nerium.BackOffice.Web/Nerium.BackOffice/app/controllers/reports/volumeTrackerReportCtrl.js"></script>
+<script src="../../Nerium.BackOffice.Web/Nerium.BackOffice/app/controllers/reports/reportCenter/bpsInTeamWithNewPcsCtrl.js"></script>
+<script src="../../Nerium.BackOffice.Web/Nerium.BackOffice/app/controllers/reports/reportCenter/customReportCtrl.js"></script>
+<script src="../../Nerium.BackOffice.Web/Nerium.BackOffice/app/controllers/reports/reportCenter/newReportCtrl.js"></script>
+<script src="../../Nerium.BackOffice.Web/Nerium.BackOffice/app/controllers/reports/reportCenter/reportMessagingCtrl.js"></script>
+<script src="../../Nerium.BackOffice.Web/Nerium.BackOffice/app/controllers/reports/reportCenter/reportViewerCtrl.js"></script>
+<script src="../../Nerium.BackOffice.Web/Nerium.BackOffice/app/controllers/reports/reportCenter/savedReportsCtrl.js"></script>
+<script src="../../Nerium.BackOffice.Web/Nerium.BackOffice/app/controllers/reports/reportCenter/teamNewStartsReportCenterCtrl.js"></script>
+<script src="../../Nerium.BackOffice.Web/Nerium.BackOffice/app/controllers/settings/profileCtrl.js"></script>
+<script src="../../Nerium.BackOffice.Web/Nerium.BackOffice/app/controllers/settings/settingsLoginCtrl.js"></script>
+<script src="../../Nerium.BackOffice.Web/Nerium.BackOffice/app/controllers/widgets/advWidgetCtrl.js"></script>
+<script src="../../Nerium.BackOffice.Web/Nerium.BackOffice/app/controllers/widgets/commissionWidgetCtrl.js"></script>
+<script src="../../Nerium.BackOffice.Web/Nerium.BackOffice/app/controllers/widgets/fsqWidgetCtrl.js"></script>
+<script src="../../Nerium.BackOffice.Web/Nerium.BackOffice/app/controllers/widgets/gqvTrackerCtrl.js"></script>
+<script src="../../Nerium.BackOffice.Web/Nerium.BackOffice/app/controllers/widgets/gqvWidgetCtrl.js"></script>
+<script src="../../Nerium.BackOffice.Web/Nerium.BackOffice/app/controllers/widgets/iPadQualificationsWidgetCtrl.js"></script>
+<script src="../../Nerium.BackOffice.Web/Nerium.BackOffice/app/controllers/widgets/lexusCarBonusWidgetCtrl.js"></script>
+<script src="../../Nerium.BackOffice.Web/Nerium.BackOffice/app/controllers/widgets/marketingDriversWidgetCtrl.js"></script>
+<script src="../../Nerium.BackOffice.Web/Nerium.BackOffice/app/controllers/widgets/marketingGaugesWidgetCtrl.js"></script>
+<script src="../../Nerium.BackOffice.Web/Nerium.BackOffice/app/controllers/widgets/newStartTrackerWidgetCtrl.js"></script>
+<script src="../../Nerium.BackOffice.Web/Nerium.BackOffice/app/controllers/widgets/personallySponsoredWidgetCtrl.js"></script>
+<script src="../../Nerium.BackOffice.Web/Nerium.BackOffice/app/controllers/widgets/pqvWidgetCtrl.js"></script>
+<script src="../../Nerium.BackOffice.Web/Nerium.BackOffice/app/controllers/widgets/rankAdvancementWidgetCtrl.js"></script>
+<script src="../../Nerium.BackOffice.Web/Nerium.BackOffice/app/controllers/widgets/rankQualificationModalCtrl.js"></script>
+<script src="../../Nerium.BackOffice.Web/Nerium.BackOffice/app/controllers/widgets/recentOrdersWidgetCtrl.js"></script>
+<script src="../../Nerium.BackOffice.Web/Nerium.BackOffice/app/controllers/widgets/subscriptionHistoryWidgetCtrl.js"></script>
+<script src="../../Nerium.BackOffice.Web/Nerium.BackOffice/app/controllers/widgets/threeURFreeWidgetCtrl.js"></script>
+<script src="../../Nerium.BackOffice.Web/Nerium.BackOffice/app/controllers/widgets/volumesWidgetCtrl.js"></script>
+<script src="../../Nerium.BackOffice.Web/Nerium.BackOffice/app/directives/assetListDirective.js"></script>
+<script src="../../Nerium.BackOffice.Web/Nerium.BackOffice/app/directives/calendarPicker.js"></script>
+<script src="../../Nerium.BackOffice.Web/Nerium.BackOffice/app/directives/conferenceCalls.js"></script>
+<script src="../../Nerium.BackOffice.Web/Nerium.BackOffice/app/directives/customReportFilter.js"></script>
+<script src="../../Nerium.BackOffice.Web/Nerium.BackOffice/app/directives/dateRangePicker.js"></script>
+<script src="../../Nerium.BackOffice.Web/Nerium.BackOffice/app/directives/formsValidation.js"></script>
+<script src="../../Nerium.BackOffice.Web/Nerium.BackOffice/app/directives/foundationModalRichTextEditor.js"></script>
+<script src="../../Nerium.BackOffice.Web/Nerium.BackOffice/app/directives/languageDownload.js"></script>
+<script src="../../Nerium.BackOffice.Web/Nerium.BackOffice/app/directives/neriumMultiSelect.js"></script>
+<script src="../../Nerium.BackOffice.Web/Nerium.BackOffice/app/directives/ngEnter.js"></script>
+<script src="../../Nerium.BackOffice.Web/Nerium.BackOffice/app/directives/passwordMatch.js"></script>
+<script src="../../Nerium.BackOffice.Web/Nerium.BackOffice/app/directives/phoneNumber.js"></script>
+<script src="../../Nerium.BackOffice.Web/Nerium.BackOffice/app/directives/richTextEditor.js"></script>
+<script src="../../Nerium.BackOffice.Web/Nerium.BackOffice/app/directives/sharePreviewDownload.js"></script>
+<script src="../../Nerium.BackOffice.Web/Nerium.BackOffice/app/directives/treeNode.js"></script>
+<script src="../../Nerium.BackOffice.Web/Nerium.BackOffice/app/directives/commerce/addToProspectBasket.js"></script>
+<script src="../../Nerium.BackOffice.Web/Nerium.BackOffice/app/directives/commerce/basketItemCounter.js"></script>
+<script src="../../Nerium.BackOffice.Web/Nerium.BackOffice/app/directives/commerce/miniOrderDetails.js"></script>
+<script src="../../Nerium.BackOffice.Web/Nerium.BackOffice/app/directives/commerce/removeBasketItem.js"></script>
+<script src="../../Nerium.BackOffice.Web/Nerium.BackOffice/app/directives/Messaging/conversationDirective.js"></script>
+<script src="../../Nerium.BackOffice.Web/Nerium.BackOffice/app/directives/Messaging/message.js"></script>
+<script src="../../Nerium.BackOffice.Web/Nerium.BackOffice/app/directives/Messaging/shareModalDirective.js"></script>
+<script src="../../Nerium.BackOffice.Web/Nerium.BackOffice/app/directives/Messaging/viewAllMessagesDirective.js"></script>
+<script src="../../Nerium.BackOffice.Web/Nerium.BackOffice/app/filters/numberRangeFilter.js"></script>
+<script src="../../Nerium.BackOffice.Web/Nerium.BackOffice/app/filters/orderObjectBy.js"></script>
+<script src="../../Nerium.BackOffice.Web/Nerium.BackOffice/app/filters/phoneFilter.js"></script>
+<script src="../../Nerium.BackOffice.Web/Nerium.BackOffice/app/filters/propsFilter.js"></script>
+<script src="../../Nerium.BackOffice.Web/Nerium.BackOffice/app/models/addressModel.js"></script>
+<script src="../../Nerium.BackOffice.Web/Nerium.BackOffice/app/models/changeUserPasswordRequest.js"></script>
+<script src="../../Nerium.BackOffice.Web/Nerium.BackOffice/app/models/commissionPeriodList.js"></script>
+<script src="../../Nerium.BackOffice.Web/Nerium.BackOffice/app/models/commissions.js"></script>
+<script src="../../Nerium.BackOffice.Web/Nerium.BackOffice/app/models/communication.js"></script>
+<script src="../../Nerium.BackOffice.Web/Nerium.BackOffice/app/models/customerSiteDto.js"></script>
+<script src="../../Nerium.BackOffice.Web/Nerium.BackOffice/app/models/downlineNotification.js"></script>
+<script src="../../Nerium.BackOffice.Web/Nerium.BackOffice/app/models/edgeSubscriber.js"></script>
+<script src="../../Nerium.BackOffice.Web/Nerium.BackOffice/app/models/gqvDetail.js"></script>
+<script src="../../Nerium.BackOffice.Web/Nerium.BackOffice/app/models/myCommissionBonuses.js"></script>
+<script src="../../Nerium.BackOffice.Web/Nerium.BackOffice/app/models/myCommissionDetails.js"></script>
+<script src="../../Nerium.BackOffice.Web/Nerium.BackOffice/app/models/notification.js"></script>
+<script src="../../Nerium.BackOffice.Web/Nerium.BackOffice/app/models/profile.js"></script>
+<script src="../../Nerium.BackOffice.Web/Nerium.BackOffice/app/models/assetRepository/asset.js"></script>
+<script src="../../Nerium.BackOffice.Web/Nerium.BackOffice/app/models/assetRepository/assetListItem.js"></script>
+<script src="../../Nerium.BackOffice.Web/Nerium.BackOffice/app/models/assetRepository/category.js"></script>
+<script src="../../Nerium.BackOffice.Web/Nerium.BackOffice/app/models/assetRepository/countryLanguage.js"></script>
+<script src="../../Nerium.BackOffice.Web/Nerium.BackOffice/app/models/assetRepository/hotTopic.js"></script>
+<script src="../../Nerium.BackOffice.Web/Nerium.BackOffice/app/models/assetRepository/subCategoryAssets.js"></script>
+<script src="../../Nerium.BackOffice.Web/Nerium.BackOffice/app/models/commerce/billingInfo.js"></script>
+<script src="../../Nerium.BackOffice.Web/Nerium.BackOffice/app/models/commerce/billingInfoModel.js"></script>
+<script src="../../Nerium.BackOffice.Web/Nerium.BackOffice/app/models/commerce/orderModel.js"></script>
+<script src="../../Nerium.BackOffice.Web/Nerium.BackOffice/app/models/commerce/productModel.js"></script>
+<script src="../../Nerium.BackOffice.Web/Nerium.BackOffice/app/models/commerce/shippingInfoModel.js"></script>
+<script src="../../Nerium.BackOffice.Web/Nerium.BackOffice/app/models/messaging/conversationDto.js"></script>
+<script src="../../Nerium.BackOffice.Web/Nerium.BackOffice/app/models/messaging/conversationMessage.js"></script>
+<script src="../../Nerium.BackOffice.Web/Nerium.BackOffice/app/models/messaging/conversationMessages.js"></script>
+<script src="../../Nerium.BackOffice.Web/Nerium.BackOffice/app/models/messaging/conversationParticipants.js"></script>
+<script src="../../Nerium.BackOffice.Web/Nerium.BackOffice/app/models/messaging/viewAllMessages.js"></script>
+<script src="../../Nerium.BackOffice.Web/Nerium.BackOffice/app/models/reports/adoTrackerDetail.js"></script>
+<script src="../../Nerium.BackOffice.Web/Nerium.BackOffice/app/models/reports/adv.js"></script>
+<script src="../../Nerium.BackOffice.Web/Nerium.BackOffice/app/models/reports/bonusCommissionsDetail.js"></script>
+<script src="../../Nerium.BackOffice.Web/Nerium.BackOffice/app/models/reports/bpsInTeamWithNewPcs.js"></script>
+<script src="../../Nerium.BackOffice.Web/Nerium.BackOffice/app/models/reports/customReportResult.js"></script>
+<script src="../../Nerium.BackOffice.Web/Nerium.BackOffice/app/models/reports/downline.js"></script>
+<script src="../../Nerium.BackOffice.Web/Nerium.BackOffice/app/models/reports/fsqDetail.js"></script>
+<script src="../../Nerium.BackOffice.Web/Nerium.BackOffice/app/models/reports/fsqTeam.js"></script>
+<script src="../../Nerium.BackOffice.Web/Nerium.BackOffice/app/models/reports/gqvOverview.js"></script>
+<script src="../../Nerium.BackOffice.Web/Nerium.BackOffice/app/models/reports/iPadQualifications.js"></script>
+<script src="../../Nerium.BackOffice.Web/Nerium.BackOffice/app/models/reports/lexusQualification.js"></script>
+<script src="../../Nerium.BackOffice.Web/Nerium.BackOffice/app/models/reports/myTeam.js"></script>
+<script src="../../Nerium.BackOffice.Web/Nerium.BackOffice/app/models/reports/neriumEdgeTrackerDetail.js"></script>
+<script src="../../Nerium.BackOffice.Web/Nerium.BackOffice/app/models/reports/personallySponsored.js"></script>
+<script src="../../Nerium.BackOffice.Web/Nerium.BackOffice/app/models/reports/personallySponsoredCustomers.js"></script>
+<script src="../../Nerium.BackOffice.Web/Nerium.BackOffice/app/models/reports/placementSuite.js"></script>
+<script src="../../Nerium.BackOffice.Web/Nerium.BackOffice/app/models/reports/pqv.js"></script>
+<script src="../../Nerium.BackOffice.Web/Nerium.BackOffice/app/models/reports/rankAdvancementDetail.js"></script>
+<script src="../../Nerium.BackOffice.Web/Nerium.BackOffice/app/models/reports/rankQualificationDetail.js"></script>
+<script src="../../Nerium.BackOffice.Web/Nerium.BackOffice/app/models/reports/ranksList.js"></script>
+<script src="../../Nerium.BackOffice.Web/Nerium.BackOffice/app/models/reports/recentOrders.js"></script>
+<script src="../../Nerium.BackOffice.Web/Nerium.BackOffice/app/models/reports/report.js"></script>
+<script src="../../Nerium.BackOffice.Web/Nerium.BackOffice/app/models/reports/reportColumn.js"></script>
+<script src="../../Nerium.BackOffice.Web/Nerium.BackOffice/app/models/reports/reportColumnGroup.js"></script>
+<script src="../../Nerium.BackOffice.Web/Nerium.BackOffice/app/models/reports/reportFilter.js"></script>
+<script src="../../Nerium.BackOffice.Web/Nerium.BackOffice/app/models/reports/reportFilterCondition.js"></script>
+<script src="../../Nerium.BackOffice.Web/Nerium.BackOffice/app/models/reports/reportFilterValue.js"></script>
+<script src="../../Nerium.BackOffice.Web/Nerium.BackOffice/app/models/reports/reportFilterValueCategory.js"></script>
+<script src="../../Nerium.BackOffice.Web/Nerium.BackOffice/app/models/reports/reportProperty.js"></script>
+<script src="../../Nerium.BackOffice.Web/Nerium.BackOffice/app/models/reports/reportTree.js"></script>
+<script src="../../Nerium.BackOffice.Web/Nerium.BackOffice/app/models/reports/teamNewStartDetail.js"></script>
+<script src="../../Nerium.BackOffice.Web/Nerium.BackOffice/app/models/reports/volumeHistory.js"></script>
+<script src="../../Nerium.BackOffice.Web/Nerium.BackOffice/app/models/reports/volumeTracker.js"></script>
+<script src="../../Nerium.BackOffice.Web/Nerium.BackOffice/app/models/widgets/adoTracker.js"></script>
+<script src="../../Nerium.BackOffice.Web/Nerium.BackOffice/app/models/widgets/fsq.js"></script>
+<script src="../../Nerium.BackOffice.Web/Nerium.BackOffice/app/models/widgets/gqvTracker.js"></script>
+<script src="../../Nerium.BackOffice.Web/Nerium.BackOffice/app/models/widgets/iPadQualificationsWidgetDetail.js"></script>
+<script src="../../Nerium.BackOffice.Web/Nerium.BackOffice/app/models/widgets/lexusCarBonus.js"></script>
+<script src="../../Nerium.BackOffice.Web/Nerium.BackOffice/app/models/widgets/marketingDrivers.js"></script>
+<script src="../../Nerium.BackOffice.Web/Nerium.BackOffice/app/models/widgets/marketingGauge.js"></script>
+<script src="../../Nerium.BackOffice.Web/Nerium.BackOffice/app/models/widgets/newStartTracker.js"></script>
+<script src="../../Nerium.BackOffice.Web/Nerium.BackOffice/app/models/widgets/personallySponsored.js"></script>
+<script src="../../Nerium.BackOffice.Web/Nerium.BackOffice/app/models/widgets/rank.js"></script>
+<script src="../../Nerium.BackOffice.Web/Nerium.BackOffice/app/models/widgets/rankQualificationsModal.js"></script>
+<script src="../../Nerium.BackOffice.Web/Nerium.BackOffice/app/models/widgets/subscriptionHistory.js"></script>
+<script src="../../Nerium.BackOffice.Web/Nerium.BackOffice/app/models/widgets/threeURFree.js"></script>
+<script src="../../Nerium.BackOffice.Web/Nerium.BackOffice/app/models/widgets/volume.js"></script>
+<script src="../../Nerium.BackOffice.Web/Nerium.BackOffice/app/services/assetSelectorService.js"></script>
+<script src="../../Nerium.BackOffice.Web/Nerium.BackOffice/app/services/checkoutService.js"></script>
+<script src="../../Nerium.BackOffice.Web/Nerium.BackOffice/app/services/communicationService.js"></script>
+<script src="../../Nerium.BackOffice.Web/Nerium.BackOffice/app/services/customerApi.js"></script>
+<script src="../../Nerium.BackOffice.Web/Nerium.BackOffice/app/services/geoService.js"></script>
+<script src="../../Nerium.BackOffice.Web/Nerium.BackOffice/app/services/getDataApi.js"></script>
+<script src="../../Nerium.BackOffice.Web/Nerium.BackOffice/app/services/modalApi.js"></script>
+<script src="../../Nerium.BackOffice.Web/Nerium.BackOffice/app/services/postApi.js"></script>
+<script src="../../Nerium.BackOffice.Web/Nerium.BackOffice/app/services/utilService.js"></script>
+<script src="../../Nerium.BackOffice.Web/Nerium.BackOffice/app/services/commerce/basketService.js"></script>
+<script src="../../Nerium.BackOffice.Web/Nerium.BackOffice/app/services/commerce/basketSummaryService.js"></script>
+<script src="../../Nerium.BackOffice.Web/Nerium.BackOffice/app/services/commerce/checkoutService.js"></script>
+<script src="../../Nerium.BackOffice.Web/Nerium.BackOffice/app/services/commerce/prospectBasketService.js"></script>
+
+<script src="../../Nerium.AdoManager.Web/Nerium.AdoManager/app/controllers/newAdoCtrl.js"></script>
+<script src="../../Nerium.AdoManager.Web/Nerium.AdoManager/app/controllers/newAdoDetailsCtrl.js"></script>
+<script src="../../Nerium.AdoManager.Web/Nerium.AdoManager/app/controllers/viewAdoBillingCtrl.js"></script>
+<script src="../../Nerium.AdoManager.Web/Nerium.AdoManager/app/controllers/viewAdoDetailsCtrl.js"></script>
+<script src="../../Nerium.AdoManager.Web/Nerium.AdoManager/app/controllers/viewAdoHistoryCtrl.js"></script>
+<script src="../../Nerium.AdoManager.Web/Nerium.AdoManager/app/controllers/viewAllActiveAdosCtrl.js"></script>
+<script src="../../Nerium.AdoManager.Web/Nerium.AdoManager/app/controllers/viewShippingCtrl.js"></script>
+<script src="../../Nerium.AdoManager.Web/Nerium.AdoManager/app/directives/numbersOnlyDirective.js"></script>
+<script src="../../Nerium.AdoManager.Web/Nerium.AdoManager/app/filters/cardEndingFilter.js"></script>
+<script src="../../Nerium.AdoManager.Web/Nerium.AdoManager/app/filters/currencyByLocaleFilter.js"></script>
+<script src="../../Nerium.AdoManager.Web/Nerium.AdoManager/app/filters/dateByLocaleFilter.js"></script>
+
+<script src="../../Nerium.AdoManager.Web/Nerium.AdoManager/app/models/autoOrder.js"></script>
+<script src="../../Nerium.AdoManager.Web/Nerium.AdoManager/app/models/autoOrderHistory.js"></script>
+<script src="../../Nerium.AdoManager.Web/Nerium.AdoManager/app/models/autoOrderHistoryItem.js"></script>
+<script src="../../Nerium.AdoManager.Web/Nerium.AdoManager/app/models/autoOrderItem.js"></script>
+<script src="../../Nerium.AdoManager.Web/Nerium.AdoManager/app/models/billingAccount.js"></script>
+<script src="../../Nerium.AdoManager.Web/Nerium.AdoManager/app/models/shippingAddress.js"></script>
+<script src="../../Nerium.AdoManager.Web/Nerium.AdoManager/app/services/newAdoService.js"></script>
+<script src="../../Nerium.AdoManager.Web/Nerium.AdoManager/app/services/serverApi.js"></script>
+
+
+<!-- ISOLATED UI DEV VENDOR SCRIPTS START -->
+<script src="../app/vendor/angular-mocks/angular-mocks.js"></script>
+<!-- ISOLATED UI DEV VENDOR SCRIPTS END -->
+<script src="..//app/staticUiDev.js"></script>
+<script src="..//app/httpIntercepts.js"></script>
+
+
+<script type="text/javascript">
+    app.factory('webConfig', ['localStorageService', function (localStorageService) {
+
+        appSettings = {
+            digOpsApiUrl: 'Web/api',
+            myNeriumUrl: 'http://www.mynerium.biz/SponsorReport/UniLevelReporting.aspx'
+        };
+
+
+        return appSettings;
+    }]);
+
+    app.factory('profileSettings', ['localStorageService', function (localStorageService) {
+        var profileSettings = localStorageService.get('bo.profileSettings');
+
+        if (!profileSettings || 'en-US' !== profileSettings.culture) {
+            profileSettings = {
+                shortDateFormat: 'M/d/yyyy',
+                mediumDateFormat: 'MMMM d, yyyy',
+                longDateFormat: 'dddd, MMMM d, yyyy',
+                numberDecimalDigits: '2',
+                numberDecimalSeparator: '.',
+                numberGroupSeparator: ',',
+                currencyDecimalSeparator: '.',
+                currencyGroupSeparator: ',',
+                currencyDecimalDigits: '2',
+                currencySymbol: '$',
+                numberGroupSeparator: ',',
+                sessionId: '',
+                culture: 'en-US'
+            };
+
+            localStorageService.set('bo.profileSettings', profileSettings);
+        }
+
+        return profileSettings;
+    }]);
+</script>
+</body>
+</html>

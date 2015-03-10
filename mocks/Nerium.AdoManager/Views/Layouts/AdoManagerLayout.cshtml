@@ -1,0 +1,110 @@
+﻿@using System.Configuration
+@using System.IO;
+@using Nerium.Business.Helpers
+@using Nerium.Business.Managers
+@using Sitecore.Mvc
+@using Sitecore.Globalization
+@using System.Web.Optimization
+@inherits System.Web.Mvc.WebViewPage
+@{
+    string sessionId = (string)Session["ExigoSessionId"];
+    int customerId = -1;
+
+    // NOTE: There is a weird, intermittent issue where IsAuthenticated is true, but profile data is empty or incorrect...
+    if (!Sitecore.Context.User.IsAuthenticated || !int.TryParse(Sitecore.Context.User.Profile[BusinessConsts.UserProfile.CustomerId], out customerId))
+    {
+        Response.Redirect("~/ado-manager/login");
+    }
+    var keywords = NavigationManager.GetMetaKeywords();
+    var description = NavigationManager.GetMetaDescription();
+    var robotsContent = NavigationManager.GetRobotsContent();
+    System.Globalization.CultureInfo ci = Sitecore.Context.User.Profile.Culture;
+}
+<!DOCTYPE html>
+<html data-ng-app="app" lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>@Html.Raw(NavigationManager.GetBrowserTitle())</title>
+    @if (!string.IsNullOrWhiteSpace(keywords))
+    {
+        <meta name="keywords" content="@Html.Raw(keywords)" />
+    }
+    @if (!string.IsNullOrWhiteSpace(description))
+    {
+        <meta name="description" content="@Html.Raw(description)" />
+    }
+    @if (!string.IsNullOrWhiteSpace(robotsContent))
+    {
+        <meta name="ROBOTS" content="@Html.Raw(robotsContent)">
+    }
+    <link href='http://fonts.googleapis.com/css?family=Source+Sans+Pro:200,300,400,600,700,900,200italic,300italic,400italic,600italic,700italic,900italic' rel='stylesheet' type='text/css'>
+    <link href="~/assets/css/adomanager/main.css" rel="stylesheet" />
+    <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.1.0/css/font-awesome.min.css" rel="stylesheet">
+    <link href="~/assets/vendor/qtip2/jquery.qtip.css" rel="stylesheet" />
+</head>
+<body>
+    <main id="page-wrap">
+
+        @Html.Sitecore().Placeholder("backoffice_header")
+        @Html.Sitecore().Placeholder("backoffice_page_content")
+
+    </main>
+    @Html.Sitecore().Placeholder("backoffice_footer")
+
+    @* This is a global *@
+    <div id="main-modal" class="reveal-modal" data-reveal>
+        <header>
+            <a class="close-reveal-modal">&#215;</a>
+        </header>
+        <div id="modal-content"></div>
+    </div>
+
+    @Scripts.Render("~/bundles/nerium")
+    @Scripts.Render("~/bundles/backoffice")
+    @Scripts.Render("~/bundles/backoffice/adomanager")
+
+    <script type="text/javascript">
+        app.factory('webConfig', ['localStorageService', function (localStorageService) {
+            var appSettings = localStorageService.get('bo.appSettings');
+
+            if (!appSettings) {
+                appSettings = {
+                    digOpsApiUrl: '@Url.Content(ConfigSettings.DigitalOps.ApiUrl)',
+                    myNeriumUrl: '@Url.Content(ConfigSettings.BackOffice.MyNeriumUrl)'
+                };
+
+                localStorageService.set('bo.appSettings', appSettings);
+            }
+
+            return appSettings;
+        }]);
+
+        app.factory('profileSettings', ['localStorageService', function (localStorageService) {
+            var profileSettings = localStorageService.get('bo.profileSettings');
+
+            if (!profileSettings || '@ci.Name' !== profileSettings.culture) {
+                profileSettings = {
+                    shortDateFormat: '@ci.DateTimeFormat.ShortDatePattern',
+                    mediumDateFormat: '@ci.DateTimeFormat.LongDatePattern.Replace("dddd", "").Trim(',').Trim()',
+                    longDateFormat: '@ci.DateTimeFormat.LongDatePattern',
+                    numberDecimalDigits: '@ci.NumberFormat.NumberDecimalDigits',
+                    numberDecimalSeparator: '@ci.NumberFormat.NumberDecimalSeparator',
+                    numberGroupSeparator: '@ci.NumberFormat.NumberGroupSeparator',
+                    currencyDecimalSeparator: '@ci.NumberFormat.CurrencyDecimalSeparator',
+                    currencyGroupSeparator: '@ci.NumberFormat.CurrencyGroupSeparator',
+                    currencyDecimalDigits: '@ci.NumberFormat.CurrencyDecimalDigits',
+                    currencySymbol: '@ci.NumberFormat.CurrencySymbol',
+                    numberGroupSeparator: '@ci.NumberFormat.NumberGroupSeparator',
+                    sessionId: '@sessionId',
+                    culture: '@ci.Name'
+                };
+
+                localStorageService.set('bo.profileSettings', profileSettings);
+            }
+
+            return profileSettings;
+        }]);
+    </script>
+</body>
+</html>

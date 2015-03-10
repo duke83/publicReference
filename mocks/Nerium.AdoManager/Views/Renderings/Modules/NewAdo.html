@@ -1,0 +1,60 @@
+﻿
+
+<div ng-controller="newAdoCtrl">
+    <div class="row">
+        <div class="adoContainer small-12 columns">
+            <button ng-class="{'disabled':newAdoService.isActive}" ng-click="newAdoService.isActive=true">@Translate.Text("Add New Auto Delivery Order")</button>
+        </div>
+    </div>
+    <div class="row">
+        <div ng-show="newAdoService.isActive" class="adoContainer small-12 adoContainer-selected columns">
+
+
+            <!--TAB BUTTONS-->
+            <table class="tabbuttontable">
+                <tr>
+                    <td ng-repeat="tab in newAdoService.tabs" ng-bind="tab.text"
+                        @*ng-click="newAdoService.selectTab(tab.text)"*@
+                        ng-class="{'tabbuttonselected':tab.selected}"></td>
+                </tr>
+            </table>
+
+
+            <!--AUTO ORDER DETAILS-->
+            <div id="autoOrderDetailsContainer" class="contentContainer"
+                 ng-show="newAdoService.selectedTab().text=='@Translate.Text("Auto Order Details")'" ng-controller="newAdoDetailsCtrl">
+                <div id="newAdoDetails"></div>
+                <div id="newAdoAllProducts" ng-show="autoOrderDetail.productListExpanded"></div>
+            </div>
+
+
+            <!--SHIPPING DETAILS-->
+            <div id="shippingDetailsContainer" class="contentContainer"
+                 ng-show="newAdoService.selectedTab().text=='@Translate.Text("Shipping Details")'">
+                <h4>@Translate.Text("Shipping Details") </h4>
+                @*<input type="checkbox" ng-model="newAdoService.shippingTabIsValid">
+                This checkbox is bound to the newAdoService.shippingTabIsValid property and will be set
+                by a validation method in the controller*@
+            </div>
+
+
+            <!--BILLING DETAILS-->
+            <div id="billingDetailsContainer" class="contentContainer"
+                 ng-show="newAdoService.selectedTab().text=='Billing Details'"> 
+                <h4>BillingDetails </h4>
+                @*<input type="checkbox" ng-model="newAdoService.billingTabIsValid">
+                This checkbox is bound to the newAdoService.billingTabIsValid property and will be set
+                by a validation method in the controller*@
+            </div>
+
+
+            <!--BUTTONS-->
+            <button ng-click="newAdoService.clickBack()" @*ng-show="newAdoService.selectedTab().text!='Auto Order Details'"*@>Back</button>
+            <button ng-click="newAdoService.clickNext()" @*ng-class="{'disabled':!newAdoService.selectedTabIsValid()}"*@ @*ng-show="newAdoService.selectedTab().text!='Billing Details' "*@>Next</button>
+            <button ng-click="newAdoService.clickSave()" @*ng-show="newAdoService.adoDetailsTabIsValid && newAdoService.shippingTabIsValid && newAdoService.billingTabIsValid "*@>Save</button>
+            <button ng-click="newAdoService.clickCancel()">Cancel</button>
+
+
+        </div>
+    </div>
+</div>

@@ -1,0 +1,92 @@
+﻿@using Nerium.Business.Helpers
+@using Nerium.Business.Managers
+@using Sitecore.Diagnostics
+@using Sitecore.Globalization
+@using Sitecore.Security.Accounts
+@model Sitecore.Mvc.Presentation.RenderingModel
+@{
+    try
+    {
+        User user = Sitecore.Context.User;
+        int autoOrderId = 0;
+
+        if (user != null)
+        {
+            var custId = user.Profile[BusinessConsts.UserProfile.CustomerId];
+            int.TryParse(Request.QueryString["autoOrderId"], out autoOrderId);
+
+            <div data-ng-controller="ViewAdoHistoryCtrl" data-ng-init="init(@custId, @autoOrderId)" class="ado-details">
+                <div class="show-for-medium-up">
+                    <table class="small-12">
+                        <thead>
+                            <tr>
+                                <th>@Translate.Text("Order Number")</th>
+                                <th>@Translate.Text("Tracking Number")</th>
+                                <th>@Translate.Text("Total Price")</th>
+                                <th>@Translate.Text("ADV")</th>
+                                <th>@Translate.Text("Order Status")</th>
+                                <th>@Translate.Text("Last Processing Date")</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr data-ng-if="isLoading">
+                                <td colspan="8"><i class="fa fa-spinner fa-spin"></i>@Translate.Text("Loading") ...</td>
+                            </tr>
+                            <tr data-ng-if="!isLoading" data-ng-repeat-start="d in autoOrderHistory.autoOrderHistoryItems" class="history-row">
+                                <td><span data-ng-bind="d.orderId" data-ng-click="viewInvoice(d.orderId)" class="blue-text"></span></td>
+                                <td data-ng-bind="d.trackingNumber"></td>
+                                <td data-ng-bind="d.totalPrice | currencyByLocale"></td>
+                                <td data-ng-bind="d.adv"></td>
+                                <td data-ng-bind="d.orderStatus"></td>
+                                <td data-ng-bind="d.orderDate | dateByLocale: 'short'"></td>
+                                <td>
+                                    <a data-ng-click="viewDetails($index)">
+                                        @Translate.Text("View Order") <i class="fa" data-ng-class="{ 'fa-sort-asc': d.isExpanded, 'fa-sort-desc': !d.isExpanded }"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                            <tr data-ng-repeat-end data-ng-show="d.isExpanded">
+                                <td colspan="7"><div id="order-details-{{$index}}" class="contentwrap"></div></td>
+                            </tr>
+                            <tr data-ng-if="hasMoreData && !isLoading" class="history-row view-more">
+                                <td colspan="8" data-ng-click="loadAllHistory()" class="text-center blue-text">
+                                    @Translate.Text("View All")
+                                    <i data-ng-if="isLoadingMore" class="fa fa-spinner fa-spin"></i>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="show-for-small-only mobile-auto-order-history">
+                    <div data-ng-if="isLoading" class="small-12 text-center">
+                        <i class="fa fa-spinner fa-spin"></i>@Translate.Text("Loading")...
+                    </div>
+                    <div data-ng-if="!isLoading" class="small-12" data-ng-repeat="item in autoOrderHistory.autoOrderHistoryItems">
+                        <div class="small-12 order-line">
+                            <span data-ng-cloak>@Translate.Text("Order") # {{item.orderId}}</span>
+                            <i class="fa right blue-text" data-ng-class="{'fa-angle-right' : !item.isExpanded, 'fa-angle-down': item.isExpanded}" data-ng-click="viewDetails($index, true)"></i>
+                        </div>
+                        <div class="small-12">
+                            <span data-ng-cloak>@Translate.Text("Run Date"): {{item.orderDate | dateByLocale:'short'}}</span>
+                            <span data-ng-bind="item.totalPrice | currencyByLocale" class="right"></span>
+                        </div>
+                        <div class="small-12">
+                            @Translate.Text("Tracking Number"): <span data-ng-cloak class="blue-text">{{item.trackingNumber}}</span>
+                        </div>
+                        <div data-ng-show="item.isExpanded" id="order-details-mobile-{{$index}}"></div>
+                    </div>
+                    <div class="small-12 text-center blue-text" data-ng-click="loadAllHistory()" data-ng-if="hasMoreData && !isLoading">
+                        @Translate.Text("View More")
+                        <i data-ng-if="isLoadingMore" class="fa fa-spinner fa-spin"></i>
+                    </div>
+                </div>
+            </div>
+        }
+    }
+    catch (Exception ex)
+    {
+        Log.Error("Error rendering Auto Order History", ex, this);
+    }
+}
+

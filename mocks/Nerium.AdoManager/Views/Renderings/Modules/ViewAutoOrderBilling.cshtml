@@ -1,0 +1,196 @@
+﻿@using Nerium.Business.Helpers
+@using Nerium.Business.Managers
+@using Sitecore.Diagnostics
+@using Sitecore.Globalization
+@using Sitecore.Security.Accounts
+@model Sitecore.Mvc.Presentation.RenderingModel
+@{
+    try
+    {
+        User user = Sitecore.Context.User;
+        int autoOrderId = 0;
+
+        if (user != null)
+        {
+            var custId = user.Profile[BusinessConsts.UserProfile.CustomerId];
+            int.TryParse(Request.QueryString["autoOrderId"], out autoOrderId);
+            <div class="row container" data-ng-controller="ViewAdoBillingCtrl" data-ng-init="init(@autoOrderId, @custId)">
+                <alert id="deleteAddress" ng-show="isDeleting">
+                    @Translate.Text("Confirm Delete Credit Card")
+                    <input type="button" value="Cancel" data-ng-click="discardChanges()" style="margin-bottom:0" />
+                    <input type="button" value="OK" data-ng-click="saveChanges()" style="margin-bottom:0" />
+                </alert>
+                <alert id="saveSuccess" ng-show="isSaved">
+                    @Translate.Text("ADO has been saved")
+                </alert>
+                <alert id="saveFailed" type="danger" ng-show="hasSaveError">
+                    @Translate.Text("Auto Delivery Account Not Processed")
+                </alert>
+                <div ng-show="errorMessages" data-ng-repeat="errorMessage in errorMessages">
+                    <alert id="errorMessages-{{$index}}">
+                        <span data-ng-bind="errorMessage"></span>
+                    </alert>
+                </div>
+                <div class="row" data-ng-show="isDirty && !isDeleting">
+                    <div class="button-container small-6 columns right">
+                        <input type="button" value="@Translate.Text("Save Changes")" data-ng-click="saveChanges()" />
+                        <input type="button" value="@Translate.Text("Discard Changes")" data-ng-click="discardChanges()" />
+                    </div>
+                </div>
+                <div class="row tab-header">
+                    <div class="small-6 columns">@Translate.Text("Billing Address")</div>
+                    <div class="small-6 columns">@Translate.Text("Payment Method")</div>
+                </div>
+                <div class="text-center" data-ng-show="isLoading"><i class="fa fa-spinner fa-spin"></i>@Translate.Text("Loading")</div>
+                <div class="text-center" data-ng-show="isSaving && !isSaved"><i class="fa fa-spinner fa-spin"></i>@Translate.Text("Saving")</div>
+                <div class="row" data-ng-repeat="billingAccount in billingAccounts" data-ng-class="{ oddRow: $index % 2 == 0 }">
+                    <section class="medium-6 columns">
+                        <div style="width:100%;">
+                            <input type="radio" name="preferredBillingAccount-{{autoOrderId}}" id="preferredBillingAccount-{{autoOrderId}}-{{$index}}" data-ng-checked="isBillingAccountSelected(billingAccount)" data-ng-click="selectAccount(billingAccount)" />
+                            <label for="preferredBillingAccount-{{autoOrderId}}-{{$index}}" data-ng-class="{'billing-method-selected': isBillingAccountSelected(billingAccount)}">@Translate.Text("Preferred Payment Method")</label>
+                        </div>
+                        <div class="cardTitleDisplay">
+                            @Translate.Text("Card Ending In") - <span data-ng-bind="billingAccount.creditCardDisplay | cardEnding"></span>
+                        </div>
+                        <div class="billingName">
+                            <span data-ng-bind="billingAccount.billingName"></span>
+                        </div>
+                        <div>
+                            <span data-ng-bind="billingAccount.billingAddress"></span>
+                        </div>
+                        <div>
+                            <span data-ng-bind="billingAccount.billingAddress2"></span>
+                        </div>
+                        <div>
+                            <span data-ng-bind="billingAccount.billingCity"></span>,
+                            <span data-ng-bind="billingAccount.billingState"></span>
+                            <span data-ng-bind="billingAccount.billingZip"></span>
+                        </div>
+                        <div>
+                            <span data-ng-bind="billingAccount.billingCountry"></span>
+                        </div>
+                    </section>
+                    <section class="medium-6 columns">
+                        <section class="button-container" data-ng-hide="isDirty">
+                            <input type="button" value="@Translate.Text("Edit")" />
+                            <input type="button" value="@Translate.Text("Delete")" data-ng-show="isDeletable(billingAccount)" data-ng-click="deleteAccount(billingAccount)" />
+                        </section>
+                        <div>
+                            <i class="payment-type" data-ng-class="getCreditCardImageClass(billingAccount)" />
+                        </div>
+                        <div>
+                            <span data-ng-bind="billingAccount.creditCardDisplay"></span>
+                        </div>
+                        <div>
+                            @Translate.Text("Expires on") <span data-ng-bind="billingAccount.expirationMonth"></span>/<span data-ng-bind="billingAccount.expirationYear"></span>
+                        </div>
+                        <div class="expireWarning" data-ng-show="isAboutToExpire(billingAccount)">
+                            <i class="fa fa-exclamation-circle" /> @Translate.Text("Credit card is about to expire")
+                        </div>
+                    </section>
+                </div>
+                <section class="small-12 columns footerInstruction" data-ng-show="hasTwoAccounts()">
+                    * @Translate.Text("Remove and Add new Payment Method")
+                </section>
+                <div class="row auto-side-margin" data-ng-show="canAddNew()">
+                    <button type="button" class="button tiny text-left small-12" data-ng-click="addNewAccount()">
+                        @Translate.Text("Add New Credit Card")<i class="right fa" data-ng-class="{ 'fa-sort-desc': !addNewExpanded, 'fa-sort-asc': addNewExpanded }"></i>
+                    </button>
+                </div>
+                <section data-ng-show="addNewExpanded" class="row">
+                    <form name="NewBillingAccount" novalidate>
+                        <div class="large-12 columns">
+                            <span class="addNewInstruction">@Translate.Text("Enter the credit card information below.")</span>
+                        </div>
+                        <div class="large-12 columns">
+                            <span data-ng-show="creditCardTypeIdRequired" class="fieldvalidationmessage">@Translate.Text("Credit Card Type Required")</span>
+                            <fieldset ng-class="{'fieldvalidationerror':creditCardTypeIdRequired}">
+                                <legend>@Translate.Text("Type of Credit Card")</legend>
+                                <input type="radio" name="creditCardType" value="2" data-ng-model="newBillingAccount.creditCardTypeId" id="newBillingAccount-{{autoOrderId}}-2" />
+                                <label for="newBillingAccount-{{autoOrderId}}-2" data-ng-class="{'billing-method-selected': newBillingAccount.creditCardTypeId === 2}"><i class="payment-type visa" /></label>
+
+                                <input type="radio" name="creditCardType" value="3" data-ng-model="newBillingAccount.creditCardTypeId" id="newBillingAccount-{{autoOrderId}}-3" />
+                                <label for="newBillingAccount-{{autoOrderId}}-3" data-ng-class="{'billing-method-selected': newBillingAccount.creditCardTypeId === 3}"><i class="payment-type mastercard" /></label>
+
+                                <input type="radio" name="creditCardType" value="4" data-ng-model="newBillingAccount.creditCardTypeId" id="newBillingAccount-{{autoOrderId}}-4" />
+                                <label for="newBillingAccount-{{autoOrderId}}-4" data-ng-class="{'billing-method-selected': newBillingAccount.creditCardTypeId === 4}"><i class="payment-type amex" /></label>
+
+                                <input type="radio" name="creditCardType" value="5" data-ng-model="newBillingAccount.creditCardTypeId" id="newBillingAccount-{{autoOrderId}}-5" />
+                                <label for="newBillingAccount-{{autoOrderId}}-5" data-ng-class="{'billing-method-selected': newBillingAccount.creditCardTypeId === 5}"><i class="payment-type discover" /></label>
+                            </fieldset>
+                        </div>
+                        <div class="large-6 columns">
+                            <span data-ng-show="billingNameRequired" class="fieldvalidationmessage">@Translate.Text("Billing Name Required")</span>
+                            <input type="text" name="fullName" data-ng-model="newBillingAccount.billingName" placeholder="@Translate.Text("Name on Card")" data-ng-focus="isValidRequiredField(newBillingAccount, 'creditCardTypeId' )" data-ng-blur="isValidRequiredField(newBillingAccount, 'billingName')" ng-class="{'fieldvalidationerror':billingNameRequired}" required />
+                        </div>
+                        <div class="large-6 columns">
+                            <span data-ng-show="creditCardNumberInvalidMod10" class="fieldvalidationmessage">@Translate.Text("Please enter a valid credit card")</span>
+                            <input type="text" name="cardNumber" data-ng-model="newBillingAccount.creditCardNumber" placeholder="@Translate.Text("Card Number")" data-ng-blur="isValidMod10Field(newBillingAccount, 'creditCardNumber')" ng-class="{'fieldvalidationerror':creditCardNumberInvalidMod10}" required />
+                        </div>
+                        <div class="large-3 columns">
+                            <span data-ng-show="expirationMonthRequired" class="fieldvalidationmessage">@Translate.Text("Expiration Month Required")</span>
+                            <select name="expirationMonth" data-ng-model="newBillingAccount.expirationMonth" data-ng-class="{ selectPlaceholder : !newBillingAccount.expirationMonth }" data-ng-blur="isValidRequiredField(newBillingAccount, 'expirationMonth')" ng-class="{'fieldvalidationerror':expirationMonthRequired}" required>
+                                <option value="" disabled selected>@Translate.Text("Expiration Month")</option>
+                                <option>01</option>
+                                <option>02</option>
+                                <option>03</option>
+                                <option>04</option>
+                                <option>05</option>
+                                <option>06</option>
+                                <option>07</option>
+                                <option>08</option>
+                                <option>09</option>
+                                <option>10</option>
+                                <option>11</option>
+                                <option>12</option>
+                            </select>
+                        </div>
+                        <div class="large-3 columns">
+                            <span data-ng-show="expirationYearRequired" class="fieldvalidationmessage">@Translate.Text("Expiration Year Required")</span>
+                            <select name="expirationYear" data-ng-model="newBillingAccount.expirationYear" data-ng-class="{ selectPlaceholder : !newBillingAccount.expirationYear }" data-ng-blur="isValidRequiredField(newBillingAccount, 'expirationYear')" data-ng-options="item for item in expirationYearList" ng-class="{'fieldvalidationerror':expirationYearRequired}" required>
+                                <option value="" disabled selected>@Translate.Text("Expiration Year")</option>
+                            </select>
+                        </div>
+                        <div class="large-6 columns">
+                            <span data-ng-show="cvvRequired" class="fieldvalidationmessage">@Translate.Text("CVV Required")</span>
+                            <input type="text" name="cvv" data-ng-model="newBillingAccount.cvv" placeholder="@Translate.Text("CVV")" data-ng-blur="isValidRequiredField(newBillingAccount, 'cvv')" ng-class="{'fieldvalidationerror':cvvRequired}" required />
+                        </div>
+                        <div class="large-6 columns">
+                            <span data-ng-show="billingAddressRequired" class="fieldvalidationmessage">@Translate.Text("Billing Address Required")</span>
+                            <input type="text" name="address1" data-ng-model="newBillingAccount.billingAddress" placeholder="@Translate.Text("Billing Address")" data-ng-blur="isValidRequiredField(newBillingAccount, 'billingAddress')" ng-class="{'fieldvalidationerror':billingAddressRequired}" required />
+                        </div>
+                        <div class="large-6 columns">
+                            <input type="text" name="address2" data-ng-model="newBillingAccount.billingAddress2" placeholder="@Translate.Text("Apartment or Suite")" />
+                        </div>
+                        <div class="large-6 columns">
+                            <span data-ng-show="billingCityRequired" class="fieldvalidationmessage">@Translate.Text("Billing City Required")</span>
+                            <input type="text" name="city" data-ng-model="newBillingAccount.billingCity" placeholder="@Translate.Text("City")" data-ng-blur="isValidRequiredField(newBillingAccount, 'billingCity')" ng-class="{'fieldvalidationerror':billingCityRequired}" required />
+                        </div>
+                        <div class="large-6 columns">
+                            <span data-ng-show="billingStateRequired" class="fieldvalidationmessage">@Translate.Text("Billing State Required")</span>
+                            <input type="text" name="state" data-ng-model="newBillingAccount.billingState" placeholder="@Translate.Text("State")" data-ng-blur="isValidRequiredField(newBillingAccount, 'billingState')" ng-class="{'fieldvalidationerror':billingStateRequired}" required />
+                        </div>
+                        <div class="large-6 columns">
+                            <span data-ng-show="billingZipRequired" class="fieldvalidationmessage">@Translate.Text("Billing Zip Required")</span>
+                            <input type="text" name="zip" data-ng-model="newBillingAccount.billingZip" placeholder="@Translate.Text("Zip")" data-ng-blur="isValidRequiredField(newBillingAccount, 'billingZip')" ng-class="{'fieldvalidationerror':billingZipRequired}" required />
+                        </div>
+                        <div class="large-6 columns">
+                            <span data-ng-show="billingCountryRequired" class="fieldvalidationmessage">@Translate.Text("Billing Country Required")</span>
+                            <select name="country" data-ng-model="newBillingAccount.billingCountry" data-ng-class="{ selectPlaceholder: !newBillingAccount.billingCountry }" data-ng-blur="isValidRequiredField(newBillingAccount, 'billingCountry')" data-ng-options="item.countryCode as item.countryCode for item in countryList" ng-class="{'fieldvalidationerror':billingCountryRequired}" required>
+                                <option value="" disabled selected>@Translate.Text("Country")</option>
+                            </select>
+                        </div>
+                        <div class="large-12 columns">
+                            <span>@Translate.Text("If you are uncertain about your credit card changes validation or have questions, please ")</span>
+                            <a data-ng-href="{{contactUsLink}}">@Translate.Text("Contact Us")</a>.
+                        </div>
+                    </form>
+                </section>
+            </div>
+        }
+    }
+    catch (Exception ex)
+    {
+        Log.Error("Error rendering Auto Order Billing", ex, this);
+    }
+}

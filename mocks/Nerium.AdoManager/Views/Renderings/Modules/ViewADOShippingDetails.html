@@ -1,0 +1,242 @@
+﻿@using Nerium.Business.Helpers
+@using Nerium.Business.Managers
+@using Sitecore.Diagnostics
+@using Sitecore.Globalization
+@using Sitecore.Security.Accounts
+@model Sitecore.Mvc.Presentation.RenderingModel
+@{
+    try
+    {
+        User user = Sitecore.Context.User;
+        int autoOrderId = 0;
+
+        if (user != null)
+        {
+            var custId = user.Profile[BusinessConsts.UserProfile.CustomerId];
+
+            int.TryParse(Request.QueryString["autoOrderId"], out autoOrderId);
+            var serverErrorMessage = Translate.Text("Difficulty Retrieving Shipping Details");
+
+            <div class="row container" data-ng-controller="ViewShippingCtrl" data-ng-init="init(@autoOrderId, @custId, '@serverErrorMessage')">
+                <div style="font-size:.75rem;margin-left:0;display:block;padding-left:5px; background-color:dodgerblue; color: white; padding-top:2px;position:relative;display:none">
+                    @*THIS DIV IS FOR MANIPULATING STATE IN DEVELOPMENT MODE.  DELETE FOR PROD*@
+                    <span style="margin-left:5px;">(for testing button and message display bindings)<br /></span>
+                    <span style="margin-right:15px;"><input type="checkbox" ng-model="saveAlert" />saveAlert</span>
+                    <span style="margin-right:15px;"><input type="checkbox" ng-model="saveCompleted" />saveCompleted</span>
+                    <span style="margin-right:15px;"><input type="checkbox" ng-model="saveFailed" />saveFailed</span>
+                    <span style="margin-right:15px;"><input type="checkbox" ng-model="canAddNewAddress" />canAddNewAddress</span>
+                    <span style="margin-right:15px;"><input type="checkbox" ng-model="shippingAddressInvalid" />shippingAddressInvalid</span>
+                    <span style="margin-right:15px;"><input type="checkbox" ng-model="shippingAddressNotValidated" />shippingAddressNotValidated</span>
+                    <span style="margin-right:15px;"><input type="checkbox" ng-model="isLoading" />isLoading</span>
+                    <span style="margin-right:15px;"><input type="checkbox" ng-model="isSaving" />isSaving</span>
+                </div>
+                <div class="row tab-header">
+                    <div class="small-4 columns">
+                        @Translate.Text("Shipping Address")
+                    </div>
+                    <div class="button-container small-8 right">
+                        <input type="button" value="@Translate.Text("Save Changes")" data-ng-show="isDirty && !showApplyToAllQuestion && !savePreferred" data-ng-click="saveChanges()" />
+                        <input type="button" value="@Translate.Text("Discard Changes")" data-ng-show="isDirty && !showApplyToAllQuestion && !savePreferred" data-ng-click="discardChanges()" />
+                    </div>
+                </div>
+                <hr class="shippingHr" />
+                <alert id="savePreferred" ng-show="savePreferred">
+                    @Translate.Text("ADO Not Available with new address")
+                    <input type="button" value="Cancel" data-ng-click="discardChanges()" style="margin-bottom:0" />
+                    <input type="button" value="OK" data-ng-click="saveChanges()" style="margin-bottom:0" />
+                </alert>
+                <alert id="saveAlert" ng-show="saveAlert">
+                    @Translate.Text("Primary Address to All Auto-Delivery")
+                    <input type="button" value="Yes" data-ng-click="saveChanges()" style="margin-bottom:0" />
+                    <input type="button" value="No" data-ng-click="discardChanges()" style="margin-bottom:0" />
+                </alert>
+                <alert id="saveCompleted" type="success" ng-show="saveCompleted">
+                    @Translate.Text("Shipping Successfully Processed")
+                </alert>
+                <alert id="saveFailed" type="danger" ng-show="saveFailed">
+                    @Translate.Text("Auto Delivery Not Processed")
+                </alert>
+                <alert data-ng-show="shippingAddressInvalid">
+                    @Translate.Text("Invalid Address")
+                </alert>
+                <alert data-ng-show="shippingAddressNotValidated">
+                    @Translate.Text("Error Validating Address")
+                </alert>
+
+                <div class="text-center" data-ng-show="isLoading"><i class="fa fa-spinner fa-spin"></i>@Translate.Text("Loading")</div>
+                <div class="text-center" data-ng-show="isSaving"><i class="fa fa-spinner fa-spin"></i>@Translate.Text("Saving")</div>
+
+                <div>
+                    <div data-ng-repeat="shippingAddress in shippingAddresses" class="shipping-address" data-ng-class-odd="'oddRow'">
+                        <div class="row">
+                            <div class="small-8 columns">
+                                <input type="radio" name="preferredAddress-{{autoOrderId}}" id="preferredAddress-{{autoOrderId}}-{{$index}}" data-ng-checked="isSelected(shippingAddress)" data-ng-click="selectAddress(shippingAddress)" />
+                                <label for="preferredAddress-{{autoOrderId}}-{{$index}}" data-ng-class="{'address-selected':isSelected(shippingAddress)}">@Translate.Text("Preferred Shipping Address")</label>
+                            </div>
+
+                            <div class="small-4 columns text-right" ng-show="shippingAddress.type === 'Main'" style="font-weight:bold">@Translate.Text("Primary Account Address")</div>
+                        </div>
+
+                        <section class="button-container">
+
+                            <input type="button" value="@Translate.Text("Delete")" data-ng-click="deleteAddress(shippingAddress)" data-ng-show="isDeletable(shippingAddress) && !isDirty" />
+                            <input type="button" value="@Translate.Text("Edit")" data-ng-click="editAddress(shippingAddress)" data-ng-hide="isDirty" />
+                        </section>
+                        <section data-ng-hide="shippingAddress.editMode">
+                            <div data-ng-show="shippingAddress.type !== 'Main'">
+                                <span data-ng-bind="shippingAddress.firstName"></span>
+                                <span data-ng-bind="shippingAddress.lastName"></span>
+                            </div>
+                            <div data-ng-show="shippingAddress.type !== 'Main'">
+                                <span data-ng-bind="shippingAddress.company"></span>
+                            </div>
+                            <div class="address-line">
+                                <span data-ng-bind="shippingAddress.address1"></span>
+                            </div>
+                            <div class="address-line">
+                                <span data-ng-bind="shippingAddress.address2"></span>
+                            </div>
+                            <div class="address-line">
+                                <span data-ng-bind="shippingAddress.city"></span>,
+
+                                <span data-ng-bind="shippingAddress.state"></span>
+                                <span data-ng-bind="shippingAddress.zip"></span>
+                            </div>
+                            <div>
+                                <span data-ng-bind="shippingAddress.country"></span>
+                            </div>
+                            <div data-ng-show="shippingAddress.type !== 'Main'">
+                                <span data-ng-bind="shippingAddress.phone"></span>
+                            </div>
+                            <div data-ng-show="shippingAddress.type !== 'Main'">
+                                <span data-ng-bind="shippingAddress.notes"></span>
+                            </div>
+                        </section>
+                        <section data-ng-show="shippingAddress.type !== 'Main' && shippingAddress.editMode" style="font-size:.85rem; margin-left:1rem;">
+                            <table class="apply-address-to">
+                                <tr>
+                                    <td><input type="radio" name="applyType" data-ng-model="shippingAddress.applyAll" id="{{autoOrderId}}-{{$index}}-applyOne" data-ng-value="false" /></td>
+                                    <td><label for="{{autoOrderId}}-{{$index}}-applyOne">@Translate.Text("Auto Delivery Order ONLY")</label></td>
+                                </tr>
+                                <tr>
+                                    <td><input type="radio" name="applyType" data-ng-model="shippingAddress.applyAll" id="{{autoOrderId}}-{{$index}}-applyAll" data-ng-value="true" /></td>
+                                    <td><label for="{{autoOrderId}}-{{$index}}-applyAll">@Translate.Text("ALL Auto Deliver Orders Address")</label></td>
+                                </tr>
+                            </table>
+                        </section>
+                        <section data-ng-show="shippingAddress.editMode" class="edit-shipping-address">
+                            <form name="EditShippingAddress" novalidate>
+                                <div>
+                                    <span data-ng-show="firstNameRequired" class="fieldvalidationmessage">@Translate.Text("Enter First Name")</span>
+                                    <span data-ng-show="lastNameRequired" class="fieldvalidationmessage">@Translate.Text("Enter Last Name")</span>
+                                </div>
+                                <div data-ng-show="shippingAddress.type !== 'Main'">
+                                    <input type="text" name="firstName" data-ng-model="shippingAddress.firstName" placeholder="@Translate.Text("First Name")" data-ng-blur="validateField(shippingAddress, 'firstName')" ng-class="{'fieldvalidationerror':firstNameRequired}" required />
+                                    <input type="text" name="lastName" data-ng-model="shippingAddress.lastName" placeholder="@Translate.Text("Last Name")" data-ng-blur="validateField(shippingAddress, 'lastName')" ng-class="{'fieldvalidationerror':lastNameRequired}" required />
+                                </div>
+                                <div data-ng-show="shippingAddress.type !== 'Main'">
+                                    <input type="text" name="company" data-ng-model="shippingAddress.company" placeholder="@Translate.Text("Company Name")" />
+                                </div>
+                                <div>
+                                    <span data-ng-show="address1Required" class="fieldvalidationmessage">@Translate.Text("Enter Address")</span>
+                                </div>
+                                <div>
+                                    <input type="text" name="address1" data-ng-model="shippingAddress.address1" placeholder="@Translate.Text("Address 1")" data-ng-blur="validateField(shippingAddress, 'address1')" ng-class="{'fieldvalidationerror':address1Required}" required />
+                                </div>
+                                <div>
+                                    <input type="text" name="address2" data-ng-model="shippingAddress.address2" placeholder="@Translate.Text("Address 2")" />
+                                </div>
+                                <div>
+                                    <span data-ng-show="cityRequired" class="fieldvalidationmessage">@Translate.Text("Enter City")</span>
+                                    <span data-ng-show="stateRequired" class="fieldvalidationmessage">@Translate.Text("Enter State")</span>
+                                    <span data-ng-show="zipRequired" class="fieldvalidationmessage">@Translate.Text("Enter Zip")</span>
+                                </div>
+                                <div>
+                                    <input type="text" name="city" data-ng-model="shippingAddress.city" placeholder="@Translate.Text("City")" data-ng-blur="validateField(shippingAddress, 'city')" ng-class="{'fieldvalidationerror':cityRequired}" required />
+                                    <input type="text" name="state" data-ng-model="shippingAddress.state" placeholder="@Translate.Text("State")" data-ng-blur="validateField(shippingAddress, 'state')" ng-class="{'fieldvalidationerror':stateRequired}" required />
+                                    <input type="text" name="zip" data-ng-model="shippingAddress.zip" placeholder="@Translate.Text("Zip Code")" data-ng-blur="validateField(shippingAddress, 'zip')" ng-class="{'fieldvalidationerror':zipRequired}" required />
+                                    <span class="country" data-ng-bind="shippingAddress.country"></span>
+                                </div>
+                                <div data-ng-show="shippingAddress.type !== 'Main'">
+                                    <input type="text" name="phone" data-ng-model="shippingAddress.phone" placeholder="@Translate.Text("Phone")" />
+                                </div>
+                                <div data-ng-show="shippingAddress.type !== 'Main'">
+                                    <textarea name="notes" data-ng-model="shippingAddress.notes" placeholder="@Translate.Text("Special Instructions")"></textarea>
+                                    
+                                </div>
+                            </form>
+                        </section>
+
+                    </div>
+                    <div class="pad-1">
+                        <button class="button tiny adoButton small-12" type="button" data-ng-click="addNewAddress()" data-ng-show="(canAddNewAddress && !isDirty) || isAddNewExpanded">
+                            <i class="fa fa-plus"></i>
+                            @Translate.Text("Add New Address")
+                        </button>
+                        <label data-ng-show="isAddNewExpanded">@Translate.Text("Add New Shipping Address")</label>
+                        <section data-ng-show="isAddNewExpanded" style="font-size:.85rem; margin-left:1rem;">
+                            <table class="apply-address-to">
+                                <tr>
+                                    <td><input type="radio" name="applyType{{autoOrderId}}" data-ng-model="newShippingAddress.applyAll" id="applyOne" data-ng-value="false" /></td>
+                                    <td><label for="applyOne">@Translate.Text("Auto Delivery Order ONLY")</label></td>
+                                </tr>
+                                <tr>
+                                    <td><input type="radio" name="applyType{{autoOrderId}}" data-ng-model="newShippingAddress.applyAll" id="applyAll" data-ng-value="true" /></td>
+                                    <td><label for="applyAll">@Translate.Text("ALL Auto Deliver Orders Address")</label></td>
+                                </tr>
+                            </table>
+                        </section>
+                        <section data-ng-show="isAddNewExpanded" class="edit-shipping-address">
+                            <form name="NewShippingAddress" novalidate>
+                                <div>
+                                    <span data-ng-show="firstNameRequired" class="fieldvalidationmessage">@Translate.Text("Enter First Name")</span>
+                                    <span data-ng-show="lastNameRequired" class="fieldvalidationmessage">@Translate.Text("Enter Last Name")</span>
+                                </div>
+                                <div>
+                                    <input type="text" name="firstName" data-ng-model="newShippingAddress.firstName" placeholder="@Translate.Text("First Name")" data-ng-blur="validateField(newShippingAddress, 'firstName')" required />
+                                    <input type="text" name="lastName" data-ng-model="newShippingAddress.lastName" placeholder="@Translate.Text("Last Name")" data-ng-blur="validateField(newShippingAddress, 'lastName')" required />
+                                </div>
+                                <div>
+                                    <input type="text" name="company" data-ng-model="newShippingAddress.company" placeholder="@Translate.Text("Company Name")" />
+                                </div>
+                                <div>
+                                    <span data-ng-show="address1Required" class="fieldvalidationmessage">@Translate.Text("Enter Address")</span>
+                                </div>
+                                <div>
+                                    <input type="text" name="address1" data-ng-model="newShippingAddress.address1" placeholder="@Translate.Text("Address 1")" data-ng-blur="validateField(newShippingAddress, 'address1')" required />
+                                </div>
+                                <div>
+                                    <input type="text" name="address2" data-ng-model="newShippingAddress.address2" placeholder="@Translate.Text("Address 2")" />
+                                </div>
+                                <div>
+                                    <span data-ng-show="cityRequired" class="fieldvalidationmessage">@Translate.Text("Enter City")</span>
+                                    <span data-ng-show="stateRequired" class="fieldvalidationmessage">@Translate.Text("Enter State")</span>
+                                    <span data-ng-show="zipRequired" class="fieldvalidationmessage">@Translate.Text("Enter Zip")</span>
+                                </div>
+                                <div>
+                                    <input type="text" name="city" data-ng-model="newShippingAddress.city" placeholder="@Translate.Text("City")" data-ng-blur="validateField(newShippingAddress, 'city')" ng-class="{'fieldvalidationerror':cityRequired}" required />
+                                    <input type="text" name="state" data-ng-model="newShippingAddress.state" placeholder="@Translate.Text("State")" data-ng-blur="validateField(newShippingAddress, 'state')" ng-class="{'fieldvalidationerror':stateRequired}" required />
+                                    <input type="text" name="zip" data-ng-model="newShippingAddress.zip" placeholder="@Translate.Text("Zip")" data-ng-blur="validateField(newShippingAddress, 'zip')" ng-class="{'fieldvalidationerror':zipRequired}" required />
+                                    <span class="country" data-ng-bind="newShippingAddress.country"></span>
+                                </div>
+                                <div>
+                                    <input type="text" name="phone" data-ng-model="newShippingAddress.phone" placeholder="@Translate.Text("Phone")" />
+                                </div>
+                                <div>
+                                    <input type="text" name="notes" data-ng-model="newShippingAddress.notes" placeholder="@Translate.Text("Special Instructions")" />
+                                </div>
+                                <span>@Translate.Text("Questions Address or Shipping")</span>
+                                <a data-ng-href="{{contactUsLink}}">@Translate.Text("Contact Us")</a>.
+                            </form>
+                        </section>
+                    </div>
+                </div>
+
+            </div>
+        }
+    }
+    catch (Exception ex)
+    {
+        Log.Error("Error rendering Auto Order Shipping", ex, this);
+    }
+}

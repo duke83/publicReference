@@ -1,0 +1,73 @@
+﻿            <div class="row" data-ng-controller="ViewAllActiveAdosCtrl" data-ng-init="init(@custId, '@Translate.Text("Auto Order")')">
+                <div data-alert class="alert-box success" data-ng-if="autoOrderCancelled">
+                    @Translate.Text("ADO Cancelled")
+                </div>
+                <div class="small-12 columns adoContainer" ng-class="autoOrder.isSelected ? 'adoContainer-selected':'adoContainer-notSelected'" data-ng-repeat="autoOrder in autoOrders">
+                    <div data-ng-click="selectAdo(autoOrder)" data-ng-switch="ccStatus">
+                        <span data-ng-bind="autoOrder.autoOrderDescription" class="autoOrderTitle"></span>
+                        <i data-ng-click="openToBilling(autoOrder, $event)" data-ng-switch-when="expiring" class="fa fa-exclamation-circle red-text pad-left-1" title="@Translate.Text(" your credit card is about to expire.")"></i>
+                        <i data-ng-click="openToBilling(autoOrder, $event)" data-ng-switch-when="expired" class="fa fa-exclamation-circle red-text pad-left-1" title="@Translate.Text(" your credit card has expired.")"></i>
+                        <span>
+                            <a class="right">
+                                @Translate.Text("View Details")<i class="fa pad-left-1" data-ng-class="{ 'fa-sort-desc': !autoOrder.isSelected, 'fa-sort-asc': autoOrder.isSelected }"></i>
+                            </a>
+                        </span>
+                    </div>
+                    <hr class="adoHr" />
+                    <div class="auto-order-details">
+                        <div class="small-4 columns">
+                            @Translate.Text("ADO Cost:") <span data-ng-bind="autoOrder.total | currencyByLocale" class="adoValue"></span>
+                        </div>
+                        <div class="small-4 columns">
+                            @Translate.Text("ADV:") <span data-ng-bind="autoOrder.businessVolumeTotal" class="adoValue"></span>
+                        </div>
+                        <div class="small-4 columns">@Translate.Text("Next Run Date:") <span data-ng-bind="autoOrder.nextRunDate | dateByLocale: 'short'" class="adoValue"></span></div>
+                    </div>
+
+                    <div data-ng-show="autoOrder.isSelected">
+                        <tabset class="show-for-medium-up">
+                            <tab heading="@Translate.Text("Auto Order Details")" select="loadDetails($index)"></tab>
+                            <tab heading="@Translate.Text("Shipping Details")" select="loadShipping($index)"></tab>
+                            <tab heading="@Translate.Text("Billing Details")" select="loadBilling($index)"></tab>
+                            <tab heading="@Translate.Text("Auto Order History")" select="loadHistory($index)"></tab>
+                        </tabset>
+                        <ul id="orbit-list-{{autoOrder.autoOrderId}}" class="auto-order-orbit-content" data-orbit data-options="slide_number: false;timer:false;next_on_click: false;swipe: true;bullets:false;circular: true;variable_height: true;navigation_arrows:false;">
+                            <li data-orbit-slide="details" class="tabs-content orbit-content">
+                                <span class="show-for-small-only text-center">@Translate.Text("Auto Order Details")</span>
+                                <div id="details-{{$index}}" class="contentwrap"></div>
+                                <a class="orbit-prev mSlider disabled show-for-small-only"><span></span></a>
+                                <a class="orbit-next mSlider show-for-small-only" ng-click="loadShipping($index)"><span></span></a>
+                            </li>
+                            <li data-orbit-slide="shipping" class="tabs-content orbit-content">
+                                <span class="show-for-small-only text-center">@Translate.Text("Shipping Details")</span>
+                                <div id="shipping-{{$index}}" class="contentwrap"></div>
+                                <a class="orbit-prev mSlider show-for-small-only" ng-click="loadDetails($index)"><span></span></a>
+                                <a class="orbit-next mSlider show-for-small-only" ng-click="loadBilling($index)"><span></span></a>
+                            </li>
+                            <li data-orbit-slide="billing" class="tabs-content orbit-content">
+                                <span class="show-for-small-only text-center">@Translate.Text("Billing Details")</span>
+                                <div id="billing-{{$index}}" class="contentwrap"></div>
+                                <a class="orbit-prev mSlider show-for-small-only" ng-click="loadShipping($index)"><span></span></a>
+                                <a class="orbit-next mSlider show-for-small-only" ng-click="loadHistory($index)"><span></span></a>
+                            </li>
+                            <li data-orbit-slide="history" class="tabs-content orbit-content">
+                                <span class="show-for-small-only text-center">@Translate.Text("Auto Order History")</span>
+                                <div id="history-{{$index}}" class="contentwrap"></div>
+                                <a class="orbit-prev mSlider show-for-small-only" ng-click="loadBilling($index)"><span></span></a>
+                                <a class="orbit-next mSlider disabled show-for-small-only"><span></span></a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div id="save-changes-confirmation-modal" class="confirmation-modal reveal-modal tiny" data-reveal>
+                    <header>
+                        <div>@Translate.Text("Save Changes")</div>
+                    </header>
+                    <div>@Translate.Text("Save or Discard ADO Details")</div>
+                    <footer>
+                        <button type="button" class="button tiny right radius" data-ng-click="closeTabSave()">@Translate.Text("OK")</button>
+                    </footer>
+                </div>
+
+            </div>
