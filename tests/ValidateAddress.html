@@ -19,7 +19,8 @@
     </li>
     <br>
 
-    <span style="border: solid silver 1px; display: inline-block; padding:1rem;">
+    <span style="border: solid silver 1px; display: inline-block; padding:1rem; color:gray">
+        <span style="font-size:.75rem;display: block; top:-.5rem;position:relative">(this is from scope bindings)</span>
         address1: {{address1}}<br>
         address2: {{address2}}<br>
         city: {{city}}<br>
@@ -27,7 +28,7 @@
         zip: {{zip}}<br>
     </span>
 
-    <valid-address address1="{{address1}}"></valid-address>
+    <valid-address ng-attr-address1="{{address1}}"></valid-address>
 
     <hr>
 
@@ -40,7 +41,7 @@
 
 <!-- ISOLATED UI DEV VENDOR SCRIPTS START -->
 <script src="../app/vendor/angular-mocks/angular-mocks.js"></script>
-<script src="../../Nerium.AdoManager.Web/Nerium.AdoManager/app/directives/validAddressDirective.js"></script>
+<script src="/StaticUiDev/app/validAddress/validAddressDirective.js"></script>
 
 
 </body>
