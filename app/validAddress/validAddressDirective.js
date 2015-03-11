@@ -4,27 +4,43 @@ var app = angular.module('app', []);
 (function () {
     'use strict';
     angular.module('app')
-        .directive('validAddress', function () {
+        .directive('validAddress', function ($rootScope, validAddressService) {
             return {
                 restrict: 'E',
-
+                scope:{
+                    address:"=",
+                    addressidentifier:"@"
+                },
                 templateUrl: "../../StaticUiDev/mocks/Nerium.AdoManager/Views/Renderings/Modules/ValidAddressDirective.html",
                 controller: function ($scope) {
 
                     $scope.SuggestedAddress = null;
 
-                    $scope.GetSuggestedAddress = function () {
+                    var addressid ="";
+                    if($scope.addressidentifier){
+                        addressid=$scope.addressidentifier;
+                    }
 
-                        $scope.ParentAddressFailsValidation = !$scope.mockServiceReturn.isValid;
+                    $rootScope.$on("checkAddress" + addressid ,function(event,mockdata){
+                        console.log(event);
+                        $scope.GetSuggestedAddress(mockdata);
+                    })
+
+                    $scope.GetSuggestedAddress = function (mockdata) {
+
+                        console.log(mockdata);
+                        if(mockdata) {
+                            $scope.ParentAddressFailsValidation = true;// !$scope.mockServiceReturn.isValid;
 
 
-                        $scope.SuggestedAddress = {
-                            "address1": $scope.mockServiceReturn.AutoOrderReturnAddressDto.Address1,
-                            "address2": $scope.mockServiceReturn.AutoOrderReturnAddressDto.Address2,
-                            "city": $scope.mockServiceReturn.AutoOrderReturnAddressDto.City,
-                            "state": $scope.mockServiceReturn.AutoOrderReturnAddressDto.State,
-                            "zip": $scope.mockServiceReturn.AutoOrderReturnAddressDto.Zip
-                        };
+                            $scope.SuggestedAddress = {
+                                "address1": mockdata.AutoOrderReturnAddressDto.Address1,
+                                "address2": mockdata.AutoOrderReturnAddressDto.Address2,
+                                "city": mockdata.AutoOrderReturnAddressDto.City,
+                                "state": mockdata.AutoOrderReturnAddressDto.State,
+                                "zip": mockdata.AutoOrderReturnAddressDto.Zip
+                            };
+                        }
                     }
                 },
 
@@ -68,7 +84,10 @@ var app = angular.module('app', []);
 }());
 
 angular.module('app')
-    .controller('obj_2_notValid_ctrl', ['$scope', function ($scope) {
+    .controller('obj_2_notValid_ctrl', ['$scope','validAddressService', function ($scope, validAddressService) {
+
+        $scope.validAddressService=validAddressService;
+
         $scope.myPrimaryAddress = {
             address1: "580 Garner Rd",
             address2: "yyy",
@@ -76,6 +95,9 @@ angular.module('app')
             state: "OR",
             zip: "92232"
         };
+
+        $scope.primaryAddressId="primary" + $scope.$id;
+        $scope.secondaryAddressId="secondary" + $scope.$id;
 
         $scope.mySecondaryAddress = {
             address1: "1800 Gilroy Rd",
@@ -85,7 +107,7 @@ angular.module('app')
             zip: "12333"
         };
 
-        $scope.mockServiceReturn = {
+        $scope.mockServicePrimaryReturn = {
             "isValid": false,
             "AutoOrderReturnAddressDto": {
                 "Address1": "590 Garnet Rd",
@@ -111,7 +133,7 @@ angular.module('app')
             zip: "92232"
         };
 
-        $scope.mockServiceReturn = {
+        $scope.mockServicePrimaryReturn = {
             "isValid": false,
             "AutoOrderReturnAddressDto": {
                 "Address1": "590 Garnet Rd",

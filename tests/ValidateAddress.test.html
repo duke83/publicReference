@@ -136,16 +136,20 @@ The button "Get Suggested Address" calls the GetSuggestedAddress method on the d
     </ul>
 
     <span class="address-container">
-        <span class="address-description">Primary Address</span>
-        <button ng-click="GetSuggestedAddress()">Get Suggested Address</button>
+        <span class="address-description">Primary Address (id={{primaryAddressId}})</span>
+        <button ng-click="validAddressService.GetSuggestedAddress(primaryAddressId,   mockServicePrimaryReturn)">Get Suggested Address</button>
 
         <input ng-model="myPrimaryAddress.firstName" placeholder="First Name" class="app-input">
         <input ng-model="myPrimaryAddress.lastName" placeholder="Last Name" class="app-input">
+
+        <!-- ng-attr-address-dentifier = "primary" |"secondary" -->
         <valid-address ng-attr-address1="{{myPrimaryAddress.address1}}"
                        ng-attr-address2="{{myPrimaryAddress.address2}}"
                        ng-attr-city="{{myPrimaryAddress.city}}"
                        ng-attr-state="{{myPrimaryAddress.state}}"
                        ng-attr-zip="{{myPrimaryAddress.zip}}"
+                       ng-attr-address="myPrimaryAddress"
+                       ng-attr-addressidentifier="{{primaryAddressId}}"
                        ng-model="myPrimaryAddress"
                 ></valid-address>
         <input ng-model="myPrimaryAddress.address1" placeholder="address1" class="app-input">
@@ -174,8 +178,7 @@ The button "Get Suggested Address" calls the GetSuggestedAddress method on the d
                        ng-attr-city="{{mySecondaryAddress.city}}"
                        ng-attr-state="{{mySecondaryAddress.state}}"
                        ng-attr-zip="{{mySecondaryAddress.zip}}"
-                       ng-model="mySecondaryAddress"
-                ></valid-address>
+                       ng-model="mySecondaryAddress"></valid-address>
         <input ng-model="mySecondaryAddress.address1" placeholder="address1" class="app-input">
         <input ng-model="mySecondaryAddress.address2" placeholder="address2" class="app-input">
         <input ng-model="mySecondaryAddress.city" placeholder="city" class="app-input">
@@ -191,55 +194,14 @@ The button "Get Suggested Address" calls the GetSuggestedAddress method on the d
         </span>
     </span>
 
-    <span class="mock-service-container">MOCK SERVICE
-        {{mockServiceReturn}}
+    <span class="mock-service-container">mockServicePrimaryReturn
+        {{mockServicePrimaryReturn}}
     </span>
 
 </div>
 
 
 
-
-
-<div data-ng-controller="props_1_notValid_ctrl" class="test-scenario">
-
-    <span class="test-name">props_1_notValid</span>
-    <ul>
-        <li>No address objects, only address properties for a single address in a parent scope.</li>
-        <li>Service returns not valid.</li>
-        <li>Service returns suggested address.</li>
-    </ul>
-
-    <span class="address-container">
-        <button ng-click="GetSuggestedAddress()">Get Suggested Address</button>
-        <input ng-model="firstName" placeholder="First Name" class="app-input">
-        <input ng-model="lastName" placeholder="Last Name" class="app-input">
-        <valid-address ng-attr-address1="{{address1}}"
-                       ng-attr-address2="{{address2}}"
-                       ng-attr-city="{{city}}"
-                       ng-attr-state="{{state}}"
-                       ng-attr-zip="{{zip}}"
-                ></valid-address>
-        <input ng-model="address1" placeholder="address1" class="app-input">
-        <input ng-model="address2" placeholder="address2" class="app-input">
-        <input ng-model="city" placeholder="city" class="app-input">
-        <input ng-model="state" placeholder="state" class="app-input">
-        <input ng-model="zip" placeholder="zip" class="app-input">
-        <input ng-model="instructions" placeholder="Instrucations" class="app-input">
-
-        <span class="underlying-model">
-            <span class="description">underlying model in parent</span>
-            {{firstName}} {{lastName}} {{address1}} {{address2}} {{city}} {{state}} {{zip}} {{instructions}}
-            <span ng-show="userApproved" class="submit-status ready">Ready to Save</span>
-            <span ng-hide="userApproved" class="submit-status not-ready">Not Ready to Save</span>
-        </span>
-    </span>
-
-    <span class="mock-service-container">MOCK SERVICE
-        {{mockServiceReturn}}
-    </span>
-
-</div>
 
 
 
@@ -270,8 +232,9 @@ The button "Get Suggested Address" calls the GetSuggestedAddress method on the d
 <script src="../../Nerium.Global.Web/assets/vendor/angular.js"></script>
 
 <!-- ISOLATED UI DEV VENDOR SCRIPTS START -->
-<script src="../app/vendor/angular-mocks/angular-mocks.js"></script>
+
 <script src="../../StaticUiDev/app/validAddress/validAddressDirective.js"></script>
+<script src="../../StaticUiDev/app/validAddress/validAddressService.js"></script>
 
 
 </body>
