@@ -189,8 +189,8 @@ The button "Get Suggested Address" calls the GetSuggestedAddress method on the d
         <span class="underlying-model">
             <span class="description">underlying model in parent</span>
             {{myPrimaryAddress.firstName}} {{myPrimaryAddress.lastName}} {{myPrimaryAddress.address1}} {{myPrimaryAddress.address2}} {{myPrimaryAddress.city}} {{myPrimaryAddress.state}} {{myPrimaryAddress.zip}} {{myPrimaryAddress.instructions}}
-            <span ng-show="userApproved" class="submit-status ready">Ready to Save</span>
-            <span ng-hide="userApproved" class="submit-status not-ready">Not Ready to Save</span>
+            <span ng-show="myPrimaryAddress.userApproved" class="submit-status ready">Ready to Save</span>
+            <span ng-hide="myPrimaryAddress.userApproved" class="submit-status not-ready">Not Ready to Save</span>
         </span>
     </span>
 

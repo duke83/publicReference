@@ -42,6 +42,25 @@ var app = angular.module('app', []);
                             };
                         }
                     }
+                    $scope.selectAddress = function (source) { // source is 'suggested' | 'override'
+                        //scp.userApproved=true;
+                        $scope.address.userApproved=true;
+                        if (source === 'suggested') {
+                            $scope.address1 = $scope.SuggestedAddress.address1;
+                            $scope.address2 = $scope.SuggestedAddress.address2;
+                            $scope.city = $scope.SuggestedAddress.city;
+                            $scope.state = $scope.SuggestedAddress.state;
+                            $scope.zip = $scope.SuggestedAddress.zip;
+                        }
+                        if (source === 'override') {
+                            $scope.address1 = $scope.CopyOfParentAddress.address1;
+                            $scope.address2 = $scope.CopyOfParentAddress.address2;
+                            $scope.city = $scope.CopyOfParentAddress.city;
+                            $scope.state = $scope.CopyOfParentAddress.state;
+                            $scope.zip = $scope.CopyOfParentAddress.zip;
+                        }
+
+                    }
                 },
 
                 link: function (scp, el, attrs, mdl) {
@@ -56,28 +75,6 @@ var app = angular.module('app', []);
                         "zip": attrs.zip
                     };
 
-                    scp.selectAddress = function (source) { // source is 'suggested' | 'override'
-                        scp.userApproved=true;
-                        if (source === 'suggested') {
-                            scp.address1 = scp.SuggestedAddress.address1;
-                            scp.address2 = scp.SuggestedAddress.address2;
-                            scp.city = scp.SuggestedAddress.city;
-                            scp.state = scp.SuggestedAddress.state;
-                            scp.zip = scp.SuggestedAddress.zip;
-                        }
-                        if (source === 'override') {
-                            scp.address1 = scp.CopyOfParentAddress.address1;
-                            scp.address2 = scp.CopyOfParentAddress.address2;
-                            scp.city = scp.CopyOfParentAddress.city;
-                            scp.state = scp.CopyOfParentAddress.state;
-                            scp.zip = scp.CopyOfParentAddress.zip;
-                        }
-                        //todo: update attrs
-                    }
-
-                    scp.showMessage = function (message) {
-                        alert(scp.OriginalAddress.address1);
-                    }
                 }
             }
         })
