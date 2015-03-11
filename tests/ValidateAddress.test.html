@@ -143,14 +143,8 @@ The button "Get Suggested Address" calls the GetSuggestedAddress method on the d
         <input ng-model="myPrimaryAddress.lastName" placeholder="Last Name" class="app-input">
 
         <!-- ng-attr-address-dentifier = "primary" |"secondary" -->
-        <valid-address ng-attr-address1="{{myPrimaryAddress.address1}}"
-                       ng-attr-address2="{{myPrimaryAddress.address2}}"
-                       ng-attr-city="{{myPrimaryAddress.city}}"
-                       ng-attr-state="{{myPrimaryAddress.state}}"
-                       ng-attr-zip="{{myPrimaryAddress.zip}}"
-                       ng-attr-address="myPrimaryAddress"
+        <valid-address ng-attr-address="myPrimaryAddress"
                        ng-attr-addressidentifier="{{primaryAddressId}}"
-                       ng-model="myPrimaryAddress"
                 ></valid-address>
         <input ng-model="myPrimaryAddress.address1" placeholder="address1" class="app-input">
         <input ng-model="myPrimaryAddress.address2" placeholder="address2" class="app-input">
@@ -162,8 +156,8 @@ The button "Get Suggested Address" calls the GetSuggestedAddress method on the d
         <span class="underlying-model">
             <span class="description">underlying model in parent</span>
             {{myPrimaryAddress.firstName}} {{myPrimaryAddress.lastName}} {{myPrimaryAddress.address1}} {{myPrimaryAddress.address2}} {{myPrimaryAddress.city}} {{myPrimaryAddress.state}} {{myPrimaryAddress.zip}} {{myPrimaryAddress.instructions}}
-            <span ng-show="userApproved" class="submit-status ready">Ready to Save</span>
-            <span ng-hide="userApproved" class="submit-status not-ready">Not Ready to Save</span>
+            <span ng-show="myPrimaryAddress.userApproved" class="submit-status ready">Ready to Save</span>
+            <span ng-hide="myPrimaryAddress.userApproved" class="submit-status not-ready">Not Ready to Save</span>
         </span>
     </span>
 
@@ -188,9 +182,9 @@ The button "Get Suggested Address" calls the GetSuggestedAddress method on the d
 
         <span class="underlying-model">
             <span class="description">underlying model in parent</span>
-            {{myPrimaryAddress.firstName}} {{myPrimaryAddress.lastName}} {{myPrimaryAddress.address1}} {{myPrimaryAddress.address2}} {{myPrimaryAddress.city}} {{myPrimaryAddress.state}} {{myPrimaryAddress.zip}} {{myPrimaryAddress.instructions}}
-            <span ng-show="myPrimaryAddress.userApproved" class="submit-status ready">Ready to Save</span>
-            <span ng-hide="myPrimaryAddress.userApproved" class="submit-status not-ready">Not Ready to Save</span>
+            {{mySecondaryAddress.firstName}} {{mySecondaryAddress.lastName}} {{mySecondaryAddress.address1}} {{mySecondaryAddress.address2}} {{mySecondaryAddress.city}} {{mySecondaryAddress.state}} {{mySecondaryAddress.zip}} {{mySecondaryAddress.instructions}}
+            <span ng-show="mySecondaryAddress.userApproved" class="submit-status ready">Ready to Save</span>
+            <span ng-hide="mySecondaryAddress.userApproved" class="submit-status not-ready">Not Ready to Save</span>
         </span>
     </span>
 

@@ -46,18 +46,18 @@ var app = angular.module('app', []);
                         //scp.userApproved=true;
                         $scope.address.userApproved=true;
                         if (source === 'suggested') {
-                            $scope.address1 = $scope.SuggestedAddress.address1;
-                            $scope.address2 = $scope.SuggestedAddress.address2;
-                            $scope.city = $scope.SuggestedAddress.city;
-                            $scope.state = $scope.SuggestedAddress.state;
-                            $scope.zip = $scope.SuggestedAddress.zip;
+                            $scope.address.address1 = $scope.SuggestedAddress.address1;
+                            $scope.address.address2 = $scope.SuggestedAddress.address2;
+                            $scope.address.city = $scope.SuggestedAddress.city;
+                            $scope.address.state = $scope.SuggestedAddress.state;
+                            $scope.address.zip = $scope.SuggestedAddress.zip;
                         }
                         if (source === 'override') {
-                            $scope.address1 = $scope.CopyOfParentAddress.address1;
-                            $scope.address2 = $scope.CopyOfParentAddress.address2;
-                            $scope.city = $scope.CopyOfParentAddress.city;
-                            $scope.state = $scope.CopyOfParentAddress.state;
-                            $scope.zip = $scope.CopyOfParentAddress.zip;
+                            $scope.address.address1 = $scope.CopyOfParentAddress.address1;
+                            $scope.address.address2 = $scope.CopyOfParentAddress.address2;
+                            $scope.address.city = $scope.CopyOfParentAddress.city;
+                            $scope.address.state = $scope.CopyOfParentAddress.state;
+                            $scope.address.zip = $scope.CopyOfParentAddress.zip;
                         }
 
                     }
