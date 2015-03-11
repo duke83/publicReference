@@ -2,8 +2,9 @@
 
     <div ng-if="SuggestedAddress">
         <hr>
-        <div>The address you entered did not pass validation.  Please select from the following options:</div>
-        <h5 ng-click="selectSuggested()">Suggested</h5>
+
+         <input id="addressSource" type="radio" ng-model="addressSource" name="addressSource" value="suggested" data-ng-change="selectAddress('suggested')">
+        <label for="addressSource" >Is this the address you mean?</label>
 
         <div class="address-line">
             <span class="ng-binding" data-ng-bind="SuggestedAddress.address1"></span>
@@ -21,23 +22,23 @@
     </div>
 
     <hr>
-    <h5 ng-click="selectOriginal()">Force to use this address (original or newly edited)</h5>
 
+    <input type="radio" ng-model="addressSource" name="addressSource" value="override" data-ng-change="selectAddress('override')">
+    <label for="addressSource" >I am sure I want to use this address</label>
+    <!--<div >-->
+        <!--<div class="address-line">-->
+            <!--<input class="ng-binding" data-ng-model="CopyOfParentAddress.address1"></span>-->
+        <!--</div>-->
 
-    <div >
-        <div class="address-line">
-            <input class="ng-binding" data-ng-model="CopyOfParentAddress.address1"></span>
-        </div>
-
-        <div class="address-line">
-            <span class="ng-binding" data-ng-bind="CopyOfParentAddress.address2"></span>
-        </div>
-        <div class="address-line">
-            <span class="ng-binding" data-ng-bind="CopyOfParentAddress.city"></span>
-            ,
-            <span class="ng-binding" data-ng-bind="CopyOfParentAddress.state"></span>
-            <span class="ng-binding" data-ng-bind="CopyOfParentAddress.zip"></span>
-        </div>
-    </div>
+        <!--<div class="address-line">-->
+            <!--<span class="ng-binding" data-ng-bind="CopyOfParentAddress.address2"></span>-->
+        <!--</div>-->
+        <!--<div class="address-line">-->
+            <!--<span class="ng-binding" data-ng-bind="CopyOfParentAddress.city"></span>-->
+            <!--,-->
+            <!--<span class="ng-binding" data-ng-bind="CopyOfParentAddress.state"></span>-->
+            <!--<span class="ng-binding" data-ng-bind="CopyOfParentAddress.zip"></span>-->
+        <!--</div>-->
+    <!--</div>-->
 
 </div>

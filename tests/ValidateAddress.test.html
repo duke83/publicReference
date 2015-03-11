@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Auto Delivery Manager</title>
+    <link href='http://fonts.googleapis.com/css?family=Source+Sans+Pro:200,300,400,600,700,900,200italic,300italic,400italic,600italic,700italic,900italic'
+          rel='stylesheet' type='text/css'>
+    <link href="../../Nerium.Global.Web/assets/css/adomanager/main.css" rel="stylesheet"/>
+    <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.1.0/css/font-awesome.min.css" rel="stylesheet">
+    <link href="../../Nerium.Global.Web/assets/vendor/qtip2/jquery.qtip.css" rel="stylesheet"/>
+    <style>
+        .test-scenario {
+            margin-top: 50px;;
+        }
+
+        .address-container {
+            border: solid silver 1px;
+            display: inline-block;
+            padding: 1rem;
+            float:left;
+            color: gray;
+            margin: 15px;
+
+        }
+
+        .mock-service-container {
+            border: solid silver 1px;
+            display: inline-block;
+            padding: 1rem;
+            color: gray;
+            margin: 15px;
+            width:300px;
+            font-size: small;
+        }
+
+        .description {
+            position: relative;
+            font-size: .55rem;
+            display: block;
+            top: -.5rem;
+            background-color: gray;
+            color: silver;
+            text-align: center;
+            margin-top: 3px;
+        }
+
+        .address-container button {
+            display: block;
+            padding: 13px;
+            font-size: small;
+        }
+
+        .address-container .underlying-model {
+            margin-top: 20px;
+            font-size: .75rem;
+            color: gray;
+            background-color: silver;
+            display: block;
+            padding: 10px;
+        }
+
+        .submit-status{
+            display:block;
+            color:silver;
+            text-align: center;
+            margin-top:10px;
+        }
+
+        .not-ready{
+            background-color: #8b0000;
+            color: #cccc00;
+        }
+
+        .ready{
+            background-color: green;
+        }
+
+        .address-container .app-input {
+            display: block;
+            margin: .25rem;
+        }
+
+        ::-webkit-input-placeholder {
+            /* WebKit browsers */
+            color: rgba(230, 230, 230, 0.77);
+        }
+
+        :-moz-placeholder {
+            /* Mozilla Firefox 4 to 18 */
+            color: rgba(230, 230, 230, 0.77);
+            opacity: 1;
+        }
+
+        ::-moz-placeholder {
+            /* Mozilla Firefox 19+ */
+            color: rgba(230, 230, 230, 0.77);
+            opacity: 1;
+        }
+
+        :-ms-input-placeholder {
+            /* Internet Explorer 10+ */
+            color: rgba(230, 230, 230, 0.77);
+        }
+
+    </style>
+</head>
+<body data-ng-app="app" style="padding: 2rem;">
+
+The button "Get Suggested Address" calls the GetSuggestedAddress method on the directive.
+
+<!-- THE CASE WHERE THERE ARE NO ADDRESS OBJECTS, ONLY ADDRESS PROPERTIES
+        FOR A SINGLE ADDRESS IN A PARENT SCOPE -->
+
+<div data-ng-controller="props_1_notValid_ctrl" class="test-scenario">
+
+    <li>props_1_notValid:
+        <ul>
+            <li>No address objects, only address properties for a single address in a parent scope.</li>
+            <li>Service returns not valid.</li>
+            <li>Service returns suggested address.</li>
+        </ul>
+    </li>
+
+    <span class="address-container">
+
+        <button ng-click="GetSuggestedAddress()">Get Suggested Address</button>
+
+        <input ng-model="firstName" placeholder="First Name" class="app-input">
+        <input ng-model="lastName" placeholder="Last Name" class="app-input">
+        <valid-address ng-attr-address1="{{address1}}"
+                       ng-attr-address2="{{address2}}"
+                       ng-attr-city="{{city}}"
+                       ng-attr-state="{{state}}"
+                       ng-attr-zip="{{zip}}"
+                ></valid-address>
+        <input ng-model="address1" placeholder="address1" class="app-input">
+        <input ng-model="address2" placeholder="address2" class="app-input">
+        <input ng-model="city" placeholder="city" class="app-input">
+        <input ng-model="state" placeholder="state" class="app-input">
+        <input ng-model="zip" placeholder="zip" class="app-input">
+
+        <input ng-model="instructions" placeholder="Instrucations" class="app-input">
+
+        <span class="underlying-model">
+            <span class="description">underlying model in parent</span>
+        {{firstName}} {{lastName}} {{address1}} {{address2}} {{city}} {{state}} {{zip}} {{instructions}}
+            <span ng-show="userApproved" class="submit-status ready">Ready to Save</span>
+            <span ng-hide="userApproved" class="submit-status not-ready">Not Ready to Save</span>
+        </span>
+    </span>
+<span class="mock-service-container">MOCK SERVICE
+{{mockServiceReturn}}
+</span>
+
+</div>
+
+<!-- THE CASE WHERE THERE ARE 2 ADDRESS OBJECTS IN A PARENT SCOPE
+        AND THE SERVICE RETURNS A SUGGESTED ADDRESS FOR ONE
+        AND NO SUGGESTED ADDRESS FOR THE OTHER -->
+
+<!-- THE CASE WHERE THERE ARE 2 ADDRESS OBJECTS IN A PARENT SCOPE
+        AND THE SERVICE DOES NOT RETURN SUGGESTED ADDRESSES FOR EITHER -->
+
+<!-- THE CASE WHERE THERE ARE 2 ADDRESS OBJECTS IN A PARENT SCOPE
+        AND THE SERVICE RETURNS SUGGESTED ADDRESSES FOR BOTH -->
+
+
+<script src="../../Nerium.Global.Web/assets/vendor/jquery/dist/jquery.min.js"></script>
+<script src="../../Nerium.Global.Web/assets/vendor/angular.js"></script>
+
+<!-- ISOLATED UI DEV VENDOR SCRIPTS START -->
+<script src="../app/vendor/angular-mocks/angular-mocks.js"></script>
+<script src="../../StaticUiDev/app/validAddress/validAddressDirective.js"></script>
+
+
+</body>
+</html>
