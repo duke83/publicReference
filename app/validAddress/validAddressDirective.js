@@ -17,11 +17,6 @@ var app = angular.module('app', []);
 
                         $scope.ParentAddressFailsValidation = !$scope.mockServiceReturn.isValid;
 
-                        //$scope.address1 = $scope.mockServiceReturn.AutoOrderReturnAddressDto.Address1
-                        //$scope.address2 = $scope.mockServiceReturn.AutoOrderReturnAddressDto.Address2
-                        //$scope.city = $scope.mockServiceReturn.AutoOrderReturnAddressDto.City
-                        //$scope.state = $scope.mockServiceReturn.AutoOrderReturnAddressDto.State
-                        //$scope.zip = $scope.mockServiceReturn.AutoOrderReturnAddressDto.Zip
 
                         $scope.SuggestedAddress = {
                             "address1": $scope.mockServiceReturn.AutoOrderReturnAddressDto.Address1,
@@ -33,7 +28,7 @@ var app = angular.module('app', []);
                     }
                 },
 
-                link: function (scp, el, attrs) {
+                link: function (scp, el, attrs, mdl) {
                     //if the methods need access to attrs object, it's a good time
                     // to put them in the link function.
 
@@ -73,6 +68,40 @@ var app = angular.module('app', []);
 }());
 
 angular.module('app')
+    .controller('obj_2_notValid_ctrl', ['$scope', function ($scope) {
+        $scope.myPrimaryAddress = {
+            address1: "580 Garner Rd",
+            address2: "yyy",
+            city: "CJ",
+            state: "OR",
+            zip: "92232"
+        };
+
+        $scope.mySecondaryAddress = {
+            address1: "1800 Gilroy Rd",
+            address2: "",
+            city: "New Haven",
+            state: "CT",
+            zip: "12333"
+        };
+
+        $scope.mockServiceReturn = {
+            "isValid": false,
+            "AutoOrderReturnAddressDto": {
+                "Address1": "590 Garnet Rd",
+                "Address2": "",
+                "City": "Cave Junction",
+                "State": "OR",
+                "Zip": "97523-4342"
+            }
+        }
+
+    }]);
+
+
+
+
+angular.module('app')
     .controller('props_1_notValid_ctrl', ['$scope', function ($scope) {
         $scope.myPrimaryAddress = {
             address1: "580 Garner Rd",
@@ -99,4 +128,3 @@ angular.module('app')
         $scope.state = "OR";
         $scope.zip = "92232";
     }]);
-;

@@ -11,14 +11,23 @@
     <link href="../../Nerium.Global.Web/assets/vendor/qtip2/jquery.qtip.css" rel="stylesheet"/>
     <style>
         .test-scenario {
-            margin-top: 50px;;
+            margin-top: 70px;
+            margin-bottom: 20px;
+            border:1px solid lightblue;
+        }
+
+        .test-name {
+            background-color: lightblue;
+            color: white;
+            font-size: larger;
+            display: block;
+            padding: 10px;
         }
 
         .address-container {
             border: solid silver 1px;
             display: inline-block;
             padding: 1rem;
-            float:left;
             color: gray;
             margin: 15px;
 
@@ -30,10 +39,14 @@
             padding: 1rem;
             color: gray;
             margin: 15px;
-            width:300px;
+            width: 300px;
             font-size: small;
         }
 
+        .address-description{
+            font-size: .55rem;
+
+        }
         .description {
             position: relative;
             font-size: .55rem;
@@ -60,19 +73,19 @@
             padding: 10px;
         }
 
-        .submit-status{
-            display:block;
-            color:silver;
+        .submit-status {
+            display: block;
+            color: silver;
             text-align: center;
-            margin-top:10px;
+            margin-top: 10px;
         }
 
-        .not-ready{
+        .not-ready {
             background-color: #8b0000;
             color: #cccc00;
         }
 
-        .ready{
+        .ready {
             background-color: green;
         }
 
@@ -109,23 +122,96 @@
 
 The button "Get Suggested Address" calls the GetSuggestedAddress method on the directive.
 
-<!-- THE CASE WHERE THERE ARE NO ADDRESS OBJECTS, ONLY ADDRESS PROPERTIES
-        FOR A SINGLE ADDRESS IN A PARENT SCOPE -->
+
+
+
+<div data-ng-controller="obj_2_notValid_ctrl" class="test-scenario">
+
+    <span class="test-name">obj_2_notValid</span>
+    <ul>
+        <li>Two address objects in parent scope</li>
+        <li>Service returns not valid</li>
+        <li>Service returns suggested address</li>
+        <li>Parent address models should each update independently of each other</li>
+    </ul>
+
+    <span class="address-container">
+        <span class="address-description">Primary Address</span>
+        <button ng-click="GetSuggestedAddress()">Get Suggested Address</button>
+
+        <input ng-model="myPrimaryAddress.firstName" placeholder="First Name" class="app-input">
+        <input ng-model="myPrimaryAddress.lastName" placeholder="Last Name" class="app-input">
+        <valid-address ng-attr-address1="{{myPrimaryAddress.address1}}"
+                       ng-attr-address2="{{myPrimaryAddress.address2}}"
+                       ng-attr-city="{{myPrimaryAddress.city}}"
+                       ng-attr-state="{{myPrimaryAddress.state}}"
+                       ng-attr-zip="{{myPrimaryAddress.zip}}"
+                       ng-model="myPrimaryAddress"
+                ></valid-address>
+        <input ng-model="myPrimaryAddress.address1" placeholder="address1" class="app-input">
+        <input ng-model="myPrimaryAddress.address2" placeholder="address2" class="app-input">
+        <input ng-model="myPrimaryAddress.city" placeholder="city" class="app-input">
+        <input ng-model="myPrimaryAddress.state" placeholder="state" class="app-input">
+        <input ng-model="myPrimaryAddress.zip" placeholder="zip" class="app-input">
+        <input ng-model="myPrimaryAddress.instructions" placeholder="Instructions" class="app-input">
+
+        <span class="underlying-model">
+            <span class="description">underlying model in parent</span>
+            {{myPrimaryAddress.firstName}} {{myPrimaryAddress.lastName}} {{myPrimaryAddress.address1}} {{myPrimaryAddress.address2}} {{myPrimaryAddress.city}} {{myPrimaryAddress.state}} {{myPrimaryAddress.zip}} {{myPrimaryAddress.instructions}}
+            <span ng-show="userApproved" class="submit-status ready">Ready to Save</span>
+            <span ng-hide="userApproved" class="submit-status not-ready">Not Ready to Save</span>
+        </span>
+    </span>
+
+    <span class="address-container">
+        <span class="address-description">Secondary Address</span>
+        <button ng-click="GetSuggestedAddress()">Get Suggested Address</button>
+
+        <input ng-model="firstName" placeholder="First Name" class="app-input">
+        <input ng-model="lastName" placeholder="Last Name" class="app-input">
+        <valid-address ng-attr-address1="{{mySecondaryAddress.address1}}"
+                       ng-attr-address2="{{mySecondaryAddress.address2}}"
+                       ng-attr-city="{{mySecondaryAddress.city}}"
+                       ng-attr-state="{{mySecondaryAddress.state}}"
+                       ng-attr-zip="{{mySecondaryAddress.zip}}"
+                       ng-model="mySecondaryAddress"
+                ></valid-address>
+        <input ng-model="mySecondaryAddress.address1" placeholder="address1" class="app-input">
+        <input ng-model="mySecondaryAddress.address2" placeholder="address2" class="app-input">
+        <input ng-model="mySecondaryAddress.city" placeholder="city" class="app-input">
+        <input ng-model="mySecondaryAddress.state" placeholder="state" class="app-input">
+        <input ng-model="mySecondaryAddress.zip" placeholder="zip" class="app-input">
+        <input ng-model="mySecondaryAddress.instructions" placeholder="Instructions" class="app-input">
+
+        <span class="underlying-model">
+            <span class="description">underlying model in parent</span>
+            {{myPrimaryAddress.firstName}} {{myPrimaryAddress.lastName}} {{myPrimaryAddress.address1}} {{myPrimaryAddress.address2}} {{myPrimaryAddress.city}} {{myPrimaryAddress.state}} {{myPrimaryAddress.zip}} {{myPrimaryAddress.instructions}}
+            <span ng-show="userApproved" class="submit-status ready">Ready to Save</span>
+            <span ng-hide="userApproved" class="submit-status not-ready">Not Ready to Save</span>
+        </span>
+    </span>
+
+    <span class="mock-service-container">MOCK SERVICE
+        {{mockServiceReturn}}
+    </span>
+
+</div>
+
+
+
+
 
 <div data-ng-controller="props_1_notValid_ctrl" class="test-scenario">
 
-    <li>props_1_notValid:
-        <ul>
-            <li>No address objects, only address properties for a single address in a parent scope.</li>
-            <li>Service returns not valid.</li>
-            <li>Service returns suggested address.</li>
-        </ul>
-    </li>
+    <span class="test-name">props_1_notValid</span>
+    <ul>
+        <li>No address objects, only address properties for a single address in a parent scope.</li>
+        <li>Service returns not valid.</li>
+        <li>Service returns suggested address.</li>
+    </ul>
 
     <span class="address-container">
-
         <button ng-click="GetSuggestedAddress()">Get Suggested Address</button>
-
         <input ng-model="firstName" placeholder="First Name" class="app-input">
         <input ng-model="lastName" placeholder="Last Name" class="app-input">
         <valid-address ng-attr-address1="{{address1}}"
@@ -139,21 +225,33 @@ The button "Get Suggested Address" calls the GetSuggestedAddress method on the d
         <input ng-model="city" placeholder="city" class="app-input">
         <input ng-model="state" placeholder="state" class="app-input">
         <input ng-model="zip" placeholder="zip" class="app-input">
-
         <input ng-model="instructions" placeholder="Instrucations" class="app-input">
 
         <span class="underlying-model">
             <span class="description">underlying model in parent</span>
-        {{firstName}} {{lastName}} {{address1}} {{address2}} {{city}} {{state}} {{zip}} {{instructions}}
+            {{firstName}} {{lastName}} {{address1}} {{address2}} {{city}} {{state}} {{zip}} {{instructions}}
             <span ng-show="userApproved" class="submit-status ready">Ready to Save</span>
             <span ng-hide="userApproved" class="submit-status not-ready">Not Ready to Save</span>
         </span>
     </span>
-<span class="mock-service-container">MOCK SERVICE
-{{mockServiceReturn}}
-</span>
+
+    <span class="mock-service-container">MOCK SERVICE
+        {{mockServiceReturn}}
+    </span>
 
 </div>
+
+
+
+
+
+
+<!-- THE CASE WHERE THERE ARE NO ADDRESS OBJECTS, ONLY ADDRESS PROPERTIES
+        FOR A SINGLE ADDRESS IN A PARENT SCOPE -->
+
+<!-- THE CASE WHERE THERE ARE 2 ADDRESS OBJECTS IN A PARENT SCOPE
+        AND THE SERVICE RETURNS SUGGESTED ADDRESSES FOR BOTH -->
+
 
 <!-- THE CASE WHERE THERE ARE 2 ADDRESS OBJECTS IN A PARENT SCOPE
         AND THE SERVICE RETURNS A SUGGESTED ADDRESS FOR ONE
@@ -162,8 +260,10 @@ The button "Get Suggested Address" calls the GetSuggestedAddress method on the d
 <!-- THE CASE WHERE THERE ARE 2 ADDRESS OBJECTS IN A PARENT SCOPE
         AND THE SERVICE DOES NOT RETURN SUGGESTED ADDRESSES FOR EITHER -->
 
-<!-- THE CASE WHERE THERE ARE 2 ADDRESS OBJECTS IN A PARENT SCOPE
-        AND THE SERVICE RETURNS SUGGESTED ADDRESSES FOR BOTH -->
+
+
+
+
 
 
 <script src="../../Nerium.Global.Web/assets/vendor/jquery/dist/jquery.min.js"></script>
