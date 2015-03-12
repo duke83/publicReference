@@ -27,11 +27,8 @@ var app = angular.module('app', []);
                     })
 
                     $scope.GetSuggestedAddress = function (mockdata) {
-
-                        console.log(mockdata);
                         if(mockdata) {
                             $scope.ParentAddressFailsValidation = true;// !$scope.mockServiceReturn.isValid;
-
 
                             $scope.SuggestedAddress = {
                                 "address1": mockdata.AutoOrderReturnAddressDto.Address1,
@@ -42,8 +39,8 @@ var app = angular.module('app', []);
                             };
                         }
                     }
+
                     $scope.selectAddress = function (source) { // source is 'suggested' | 'override'
-                        //scp.userApproved=true;
 
                         $scope.address.userApproved=true;
                         if (source === 'suggested') {
@@ -56,10 +53,6 @@ var app = angular.module('app', []);
                         if (source === 'override') {
                             //just leave the values on $scope.address
                         }
-
-                    }
-                    $scope.clickthis=function(){
-                        console.log($scope);
                     }
                 },
 
