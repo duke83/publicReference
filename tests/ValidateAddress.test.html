@@ -13,7 +13,7 @@
         .test-scenario {
             margin-top: 70px;
             margin-bottom: 20px;
-            border:1px solid lightblue;
+            border: 1px solid lightblue;
         }
 
         .test-name {
@@ -43,10 +43,11 @@
             font-size: small;
         }
 
-        .address-description{
+        .address-description {
             font-size: .55rem;
 
         }
+
         .description {
             position: relative;
             font-size: .55rem;
@@ -123,8 +124,6 @@
 The button "Get Suggested Address" calls the GetSuggestedAddress method on the directive.
 
 
-
-
 <div data-ng-controller="obj_2_notValid_ctrl" class="test-scenario">
 
     <span class="test-name">obj_2_notValid</span>
@@ -137,7 +136,9 @@ The button "Get Suggested Address" calls the GetSuggestedAddress method on the d
 
     <span class="address-container">
         <span class="address-description">Primary Address (id={{primaryAddressId}})</span>
-        <button ng-click="validAddressService.GetSuggestedAddress(primaryAddressId,   mockServicePrimaryReturn)">Get Suggested Address</button>
+        <button ng-click="validAddressService.GetSuggestedAddress(primaryAddressId,   mockServicePrimaryReturn)">Get
+            Suggested Address
+        </button>
 
         <input ng-model="myPrimaryAddress.firstName" placeholder="First Name" class="app-input">
         <input ng-model="myPrimaryAddress.lastName" placeholder="Last Name" class="app-input">
@@ -159,20 +160,23 @@ The button "Get Suggested Address" calls the GetSuggestedAddress method on the d
             <span ng-show="myPrimaryAddress.userApproved" class="submit-status ready">Ready to Save</span>
             <span ng-hide="myPrimaryAddress.userApproved" class="submit-status not-ready">Not Ready to Save</span>
         </span>
+         <span class="underlying-model mock-service-container">mockServicePrimaryReturn
+        {{mockServicePrimaryReturn}}
+    </span>
+
     </span>
 
     <span class="address-container">
         <span class="address-description">Secondary Address</span>
-        <button ng-click="GetSuggestedAddress()">Get Suggested Address</button>
+        <button ng-click="validAddressService.GetSuggestedAddress(secondaryAddressId, mockServiceSecondaryReturn)">Get
+            Suggested Address
+        </button>
 
         <input ng-model="firstName" placeholder="First Name" class="app-input">
         <input ng-model="lastName" placeholder="Last Name" class="app-input">
-        <valid-address ng-attr-address1="{{mySecondaryAddress.address1}}"
-                       ng-attr-address2="{{mySecondaryAddress.address2}}"
-                       ng-attr-city="{{mySecondaryAddress.city}}"
-                       ng-attr-state="{{mySecondaryAddress.state}}"
-                       ng-attr-zip="{{mySecondaryAddress.zip}}"
-                       ng-model="mySecondaryAddress"></valid-address>
+        <valid-address ng-attr-address="mySecondaryAddress"
+                       ng-attr-addressidentifier="{{secondaryAddressId}}"
+                ></valid-address>
         <input ng-model="mySecondaryAddress.address1" placeholder="address1" class="app-input">
         <input ng-model="mySecondaryAddress.address2" placeholder="address2" class="app-input">
         <input ng-model="mySecondaryAddress.city" placeholder="city" class="app-input">
@@ -186,20 +190,15 @@ The button "Get Suggested Address" calls the GetSuggestedAddress method on the d
             <span ng-show="mySecondaryAddress.userApproved" class="submit-status ready">Ready to Save</span>
             <span ng-hide="mySecondaryAddress.userApproved" class="submit-status not-ready">Not Ready to Save</span>
         </span>
+
+
+    <span class="underlying-model mock-service-container">mockServiceSecondaryReturn
+        {{mockServiceSecondaryReturn}}
+    </span>
     </span>
 
-    <span class="mock-service-container">mockServicePrimaryReturn
-        {{mockServicePrimaryReturn}}
-    </span>
 
 </div>
-
-
-
-
-
-
-
 
 
 <!-- THE CASE WHERE THERE ARE NO ADDRESS OBJECTS, ONLY ADDRESS PROPERTIES
@@ -215,11 +214,6 @@ The button "Get Suggested Address" calls the GetSuggestedAddress method on the d
 
 <!-- THE CASE WHERE THERE ARE 2 ADDRESS OBJECTS IN A PARENT SCOPE
         AND THE SERVICE DOES NOT RETURN SUGGESTED ADDRESSES FOR EITHER -->
-
-
-
-
-
 
 
 <script src="../../Nerium.Global.Web/assets/vendor/jquery/dist/jquery.min.js"></script>

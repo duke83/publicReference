@@ -78,6 +78,9 @@ angular.module('app')
 
         $scope.validAddressService=validAddressService;
 
+        $scope.primaryAddressId="primary" + $scope.$id;
+        $scope.secondaryAddressId="secondary" + $scope.$id;
+
         $scope.myPrimaryAddress = {
             address1: "580 Garner Rd",
             address2: "yyy",
@@ -85,9 +88,6 @@ angular.module('app')
             state: "OR",
             zip: "92232"
         };
-
-        $scope.primaryAddressId="primary" + $scope.$id;
-        $scope.secondaryAddressId="secondary" + $scope.$id;
 
         $scope.mySecondaryAddress = {
             address1: "1800 Gilroy Rd",
@@ -105,6 +105,17 @@ angular.module('app')
                 "City": "Cave Junction",
                 "State": "OR",
                 "Zip": "97523-4342"
+            }
+        }
+
+        $scope.mockServiceSecondaryReturn = {
+            "isValid": false,
+            "AutoOrderReturnAddressDto": {
+                "Address1": "1800 Gilroy Rd",
+                "Address2": "",
+                "City": "New Haven",
+                "State": "CT",
+                "Zip": "11112-4342"
             }
         }
 
