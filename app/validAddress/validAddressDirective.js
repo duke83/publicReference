@@ -47,11 +47,11 @@ var app = angular.module('app', []);
 
                         $scope.address.userApproved=true;
                         if (source === 'suggested') {
-                            $scope.address.address1 = $scope.SuggestedAddress.address1;
-                            $scope.address.address2 = $scope.SuggestedAddress.address2;
-                            $scope.address.city = $scope.SuggestedAddress.city;
-                            $scope.address.state = $scope.SuggestedAddress.state;
-                            $scope.address.zip = $scope.SuggestedAddress.zip;
+                            $scope.address.address1 = angular.copy($scope.SuggestedAddress.address1);
+                            $scope.address.address2 = angular.copy($scope.SuggestedAddress.address2);
+                            $scope.address.city = angular.copy($scope.SuggestedAddress.city);
+                            $scope.address.state = angular.copy($scope.SuggestedAddress.state);
+                            $scope.address.zip = angular.copy($scope.SuggestedAddress.zip);
                         }
                         if (source === 'override') {
                             //just leave the values on $scope.address
