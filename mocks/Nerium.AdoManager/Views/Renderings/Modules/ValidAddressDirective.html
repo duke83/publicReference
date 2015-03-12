@@ -3,7 +3,7 @@
     <div ng-if="SuggestedAddress">
         <hr>
 
-         <input id="addressSource" type="radio" ng-model="addressSource" name="addressSource" value="suggested" data-ng-change="selectAddress('suggested')">
+         <input id="addressSource" type="radio" ng-model="addressSource" name="addressSource" value="suggested" data-ng-change="selectAddress('suggested')" data-ng-click="clickthis()">
         <label for="addressSource" >Is this the address you mean?</label>
 
         <div class="address-line">
@@ -23,7 +23,7 @@
 
     <hr>
 
-    <input type="radio" ng-model="addressSource" name="addressSource" value="override" data-ng-change="selectAddress('override')">
-    <label for="addressSource" >I am sure I want to use this address</label>
+    <input id="addressSourceOverride" type="radio" ng-model="addressSource" name="addressSource" value="override" data-ng-change="selectAddress('override')">
+    <label for="addressSourceOverride" >I am sure I want to use this address</label>
 
 </div>

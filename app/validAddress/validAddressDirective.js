@@ -44,6 +44,7 @@ var app = angular.module('app', []);
                     }
                     $scope.selectAddress = function (source) { // source is 'suggested' | 'override'
                         //scp.userApproved=true;
+
                         $scope.address.userApproved=true;
                         if (source === 'suggested') {
                             $scope.address.address1 = $scope.SuggestedAddress.address1;
@@ -53,13 +54,12 @@ var app = angular.module('app', []);
                             $scope.address.zip = $scope.SuggestedAddress.zip;
                         }
                         if (source === 'override') {
-                            $scope.address.address1 = $scope.CopyOfParentAddress.address1;
-                            $scope.address.address2 = $scope.CopyOfParentAddress.address2;
-                            $scope.address.city = $scope.CopyOfParentAddress.city;
-                            $scope.address.state = $scope.CopyOfParentAddress.state;
-                            $scope.address.zip = $scope.CopyOfParentAddress.zip;
+                            //just leave the values on $scope.address
                         }
 
+                    }
+                    $scope.clickthis=function(){
+                        console.log($scope);
                     }
                 },
 
