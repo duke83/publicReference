@@ -16,15 +16,10 @@ var app = angular.module('app', []);
 
                     $scope.SuggestedAddress = null;
 
-                    var addressid ="";
-                    if($scope.addressidentifier){
-                        addressid=$scope.addressidentifier;
-                    }
-                    //listen for broadcast associated with the given addressid
-                    $rootScope.$on("checkAddress" + addressid ,function(event,addressValidityData){
+                     //listen for broadcast associated with the given addressid
+                    $rootScope.$on("checkAddress" + $scope.addressidentifier ,function(event,addressValidityData){
                         $scope.GetSuggestedAddress(addressValidityData);
                     })
-
 
                     $scope.GetSuggestedAddress = function (addressValidityData) {
                         if(addressValidityData) {
