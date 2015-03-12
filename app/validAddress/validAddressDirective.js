@@ -8,8 +8,8 @@ var app = angular.module('app', []);
             return {
                 restrict: 'E',
                 scope:{
-                    address:"=",
-                    addressidentifier:"@"
+                    address:"=", // this is the address object from parent
+                    addressidentifier:"@"  // id comprised of parent scopeId and whether this is primary or secondary address.  Used to listen for broadcast events on address.
                 },
                 templateUrl: "../../StaticUiDev/mocks/Nerium.AdoManager/Views/Renderings/Modules/ValidAddressDirective.html",
                 controller: function ($scope) {
@@ -20,28 +20,32 @@ var app = angular.module('app', []);
                     if($scope.addressidentifier){
                         addressid=$scope.addressidentifier;
                     }
-
-                    $rootScope.$on("checkAddress" + addressid ,function(event,mockdata){
-                        console.log(event);
-                        $scope.GetSuggestedAddress(mockdata);
+                    //listen for broadcast associated with the given addressid
+                    $rootScope.$on("checkAddress" + addressid ,function(event,addressValidityData){
+                        $scope.GetSuggestedAddress(addressValidityData);
                     })
 
-                    $scope.GetSuggestedAddress = function (mockdata) {
-                        if(mockdata) {
-                            $scope.ParentAddressFailsValidation = true;// !$scope.mockServiceReturn.isValid;
+
+                    $scope.GetSuggestedAddress = function (addressValidityData) {
+                        if(addressValidityData) {
+                            if(addressValidityData.isValid){
+                                $scope.address.userApproved=true;
+                                return;
+                            }
+                            $scope.ParentAddressFailsValidation = true; //binding to show directive UI
 
                             $scope.SuggestedAddress = {
-                                "address1": mockdata.AutoOrderReturnAddressDto.Address1,
-                                "address2": mockdata.AutoOrderReturnAddressDto.Address2,
-                                "city": mockdata.AutoOrderReturnAddressDto.City,
-                                "state": mockdata.AutoOrderReturnAddressDto.State,
-                                "zip": mockdata.AutoOrderReturnAddressDto.Zip
+                                "address1": addressValidityData.AutoOrderReturnAddressDto.Address1,
+                                "address2": addressValidityData.AutoOrderReturnAddressDto.Address2,
+                                "city": addressValidityData.AutoOrderReturnAddressDto.City,
+                                "state": addressValidityData.AutoOrderReturnAddressDto.State,
+                                "zip": addressValidityData.AutoOrderReturnAddressDto.Zip
                             };
                         }
                     }
 
+                    //Triggered by user checking radio button
                     $scope.selectAddress = function (source) { // source is 'suggested' | 'override'
-
                         $scope.address.userApproved=true;
                         if (source === 'suggested') {
                             $scope.address.address1 = angular.copy($scope.SuggestedAddress.address1);
@@ -54,24 +58,58 @@ var app = angular.module('app', []);
                             //just leave the values on $scope.address
                         }
                     }
-                },
-
-                link: function (scp, el, attrs, mdl) {
-                    //if the methods need access to attrs object, it's a good time
-                    // to put them in the link function.
-
-                    scp.CopyOfParentAddress = {
-                        "address1": attrs.address1,
-                        "address2": attrs.address2,
-                        "city": attrs.city,
-                        "state": attrs.state,
-                        "zip": attrs.zip
-                    };
-
                 }
             }
         })
 }());
+
+angular.module('app')
+    .controller('obj_2_Valid_ctrl', ['$scope','validAddressService', function ($scope, validAddressService) {
+
+        $scope.validAddressService=validAddressService;
+
+        $scope.primaryAddressId="primary" + $scope.$id;
+        $scope.secondaryAddressId="secondary" + $scope.$id;
+
+        $scope.myPrimaryAddress = {
+            address1: "580 Garner Rd",
+            address2: "yyy",
+            city: "CJ",
+            state: "OR",
+            zip: "92232"
+        };
+
+        $scope.mySecondaryAddress = {
+            address1: "1800 Gilroy Rd",
+            address2: "",
+            city: "New Haven",
+            state: "CT",
+            zip: "12333"
+        };
+
+        $scope.mockServicePrimaryReturn = {
+            "isValid": true,
+            "AutoOrderReturnAddressDto": {
+                "Address1": "590 Garnet Rd",
+                "Address2": "",
+                "City": "Cave Junction",
+                "State": "OR",
+                "Zip": "97523-4342"
+            }
+        }
+
+        $scope.mockServiceSecondaryReturn = {
+            "isValid": true,
+            "AutoOrderReturnAddressDto": {
+                "Address1": "1800 Gilroy Rd",
+                "Address2": "",
+                "City": "New Haven",
+                "State": "CT",
+                "Zip": "11112-4342"
+            }
+        }
+
+    }]);
 
 angular.module('app')
     .controller('obj_2_notValid_ctrl', ['$scope','validAddressService', function ($scope, validAddressService) {
@@ -121,33 +159,3 @@ angular.module('app')
 
     }]);
 
-
-
-
-angular.module('app')
-    .controller('props_1_notValid_ctrl', ['$scope', function ($scope) {
-        $scope.myPrimaryAddress = {
-            address1: "580 Garner Rd",
-            address2: "yyy",
-            city: "CJ",
-            state: "OR",
-            zip: "92232"
-        };
-
-        $scope.mockServicePrimaryReturn = {
-            "isValid": false,
-            "AutoOrderReturnAddressDto": {
-                "Address1": "590 Garnet Rd",
-                "Address2": "",
-                "City": "Cave Junction",
-                "State": "OR",
-                "Zip": "97523-4342"
-            }
-        }
-
-        $scope.address1 = "570 Garner Rd";
-        $scope.address2 = "xxx";
-        $scope.city = "CJ";
-        $scope.state = "OR";
-        $scope.zip = "92232";
-    }]);

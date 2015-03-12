@@ -10,9 +10,6 @@
                 $rootScope.$broadcast("checkAddress" + addressid, mockaddress)
             };
 
-            //validAddressService.GetSuggestedAddress = function(addressid, mockaddress){
-            //    $rootScope.$broadcast("checkAddress" + addressid, mockaddress)
-            //}
 
             return validAddressService;
         }]
