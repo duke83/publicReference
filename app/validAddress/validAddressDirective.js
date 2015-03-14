@@ -1,55 +1,102 @@
-var app = angular.module('app', []);
-
-
 (function () {
     'use strict';
     angular.module('app')
-        .directive('validAddress', function ($rootScope, validAddressService) {
+        .directive('validAddress', function ($rootScope, serverApi, $q) {
             return {
                 restrict: 'E',
-                scope:{
-                    address:"=", // this is the address object from parent
-                    addressidentifier:"@"  // id comprised of parent scopeId and whether this is primary or secondary address.  Used to listen for broadcast events on address.
+                scope: {
+                    address: "=" // this is the address object from parent
                 },
-                templateUrl: "../../StaticUiDev/mocks/Nerium.AdoManager/Views/Renderings/Modules/ValidAddressDirective.html",
-                controller: function ($scope) {
 
-                    $scope.SuggestedAddress = null;
+                templateUrl: "http://localhost:63342/Web/StaticUiDev/app/validAddress/ValidAddressDirective.html",// "ValidateAddressDirective.html",
+                controller: function ($scope, $q) {
 
-                     //listen for broadcast associated with the given addressid
-                    $rootScope.$on("checkAddress" + $scope.addressidentifier ,function(event,addressValidityData){
-                        $scope.GetSuggestedAddress(addressValidityData);
-                    })
+                    $scope.address.validityIdentifier = "validityIdentifier" + $scope.$id;
 
-                    $scope.GetSuggestedAddress = function (addressValidityData) {
-                        if(addressValidityData) {
-                            if(addressValidityData.isValid){
-                                $scope.address.userApproved=true;
-                                return;
-                            }
-                            $scope.ParentAddressFailsValidation = true; //binding to show directive UI
 
-                            $scope.SuggestedAddress = {
-                                "address1": addressValidityData.AutoOrderReturnAddressDto.Address1,
-                                "address2": addressValidityData.AutoOrderReturnAddressDto.Address2,
-                                "city": addressValidityData.AutoOrderReturnAddressDto.City,
-                                "state": addressValidityData.AutoOrderReturnAddressDto.State,
-                                "zip": addressValidityData.AutoOrderReturnAddressDto.Zip
-                            };
-                        }
+                    //Attach the function directly to the address so that the address can check for a suggested address
+                    // at any point in it's processing path.
+                    // Also, no need for a separate validAddressService.
+
+                    // WE REALLY DON'T NEED TO USE BROADCAST HERE. BUT WE REALLY SHOULD RETURN A PROMISE
+                    // Consumers of this address can bind to the promise
+                    // The promise is resolved if the server returns isValid
+                    // OR if the user has expressed approval to override server validation.
+                    $scope.address.hasApproval = function () {
+                        var deferred = $q.defer();
+
+                        serverApi.validateShippingAddress($scope.address)
+                            .then(function (data) {
+                                console.log('serverApi returns to .then ', data)
+                                //alert ('then',data)
+                            })
+                            .catch(
+                            function (errrodata) {
+                                console.log('oh damn, ', errrodata)
+                                alert('oh, damn')
+                            })
+
+                        return deferred.promise;
+                    };
+
+                    $scope.setUserSelection = function () {
+                        $scope.address.userApproved = true;     //this setting indicates for future processing that this has user's approval
+
                     }
 
+
+                    $scope.GetSuggestedAddress = function () {
+                        $scope.SuggestedAddress = null;
+
+                        //ok, so we are assuming the spelling on $scope.address properties is a certain way.  This is a point to document.
+                        var remappedDto = {
+                            AddressLine1: $scope.address.address1,
+                            AddressLine2: $scope.address.address2,
+                            City: $scope.address.city,
+                            CountryCode: $scope.address.country,
+                            Territory: $scope.address.state,
+                            PostalCode: $scope.address.zip
+                        };
+
+                        serverApi.validateShippingAddress(remappedDto)
+                            .success(function (addressValidityData) {
+                                if (addressValidityData) {
+                                    if (addressValidityData.isValid) {
+                                        $scope.address.userApproved = true;
+                                        return;
+                                    }
+                                    $scope.ParentAddressFailsValidation = true; //binding to show directive UI
+
+                                    //serverApi may not always return a suggested address
+                                    if (addressValidityData.autoOrderReturnAddressDto) {
+                                        $scope.SuggestedAddress = {
+                                            "address1": addressValidityData.autoOrderReturnAddressDto.address1,
+                                            "address2": addressValidityData.autoOrderReturnAddressDto.address2,
+                                            "city": addressValidityData.autoOrderReturnAddressDto.city,
+                                            "state": addressValidityData.autoOrderReturnAddressDto.state,
+                                            "zip": addressValidityData.autoOrderReturnAddressDto.zip
+                                        }
+                                    }
+                                    ;
+                                    return;
+                                }
+                            })
+                            .error(function (addressValidityData) {
+                                console.log(addressValidityData.message);
+                            });
+                    };
+
                     //Triggered by user checking radio button
-                    $scope.selectAddress = function (source) { // source is 'suggested' | 'override'
-                        $scope.address.userApproved=true;
-                        if (source === 'suggested') {
+                    $scope.selectAddress = function () {
+                        // $scope.addressSource is 'suggested' | 'override'
+                        if ($scope.addressSource === 'suggested') {
                             $scope.address.address1 = angular.copy($scope.SuggestedAddress.address1);
                             $scope.address.address2 = angular.copy($scope.SuggestedAddress.address2);
                             $scope.address.city = angular.copy($scope.SuggestedAddress.city);
                             $scope.address.state = angular.copy($scope.SuggestedAddress.state);
                             $scope.address.zip = angular.copy($scope.SuggestedAddress.zip);
                         }
-                        if (source === 'override') {
+                        if ($scope.addressSource === 'override') {
                             //just leave the values on $scope.address
                         }
                     }
@@ -57,100 +104,3 @@ var app = angular.module('app', []);
             }
         })
 }());
-
-angular.module('app')
-    .controller('obj_2_Valid_ctrl', ['$scope','validAddressService', function ($scope, validAddressService) {
-
-        $scope.validAddressService=validAddressService;
-
-        $scope.primaryAddressId="primary" + $scope.$id;
-        $scope.secondaryAddressId="secondary" + $scope.$id;
-
-        $scope.myPrimaryAddress = {
-            address1: "580 Garner Rd",
-            address2: "yyy",
-            city: "CJ",
-            state: "OR",
-            zip: "92232"
-        };
-
-        $scope.mySecondaryAddress = {
-            address1: "1800 Gilroy Rd",
-            address2: "",
-            city: "New Haven",
-            state: "CT",
-            zip: "12333"
-        };
-
-        $scope.mockServicePrimaryReturn = {
-            "isValid": true,
-            "AutoOrderReturnAddressDto": {
-                "Address1": "590 Garnet Rd",
-                "Address2": "",
-                "City": "Cave Junction",
-                "State": "OR",
-                "Zip": "97523-4342"
-            }
-        }
-
-        $scope.mockServiceSecondaryReturn = {
-            "isValid": true,
-            "AutoOrderReturnAddressDto": {
-                "Address1": "1800 Gilroy Rd",
-                "Address2": "",
-                "City": "New Haven",
-                "State": "CT",
-                "Zip": "11112-4342"
-            }
-        }
-
-    }]);
-
-angular.module('app')
-    .controller('obj_2_notValid_ctrl', ['$scope','validAddressService', function ($scope, validAddressService) {
-
-        $scope.validAddressService=validAddressService;
-
-        $scope.primaryAddressId="primary" + $scope.$id;
-        $scope.secondaryAddressId="secondary" + $scope.$id;
-
-        $scope.myPrimaryAddress = {
-            address1: "580 Garner Rd",
-            address2: "yyy",
-            city: "CJ",
-            state: "OR",
-            zip: "92232"
-        };
-
-        $scope.mySecondaryAddress = {
-            address1: "1800 Gilroy Rd",
-            address2: "",
-            city: "New Haven",
-            state: "CT",
-            zip: "12333"
-        };
-
-        $scope.mockServicePrimaryReturn = {
-            "isValid": false,
-            "AutoOrderReturnAddressDto": {
-                "Address1": "590 Garnet Rd",
-                "Address2": "",
-                "City": "Cave Junction",
-                "State": "OR",
-                "Zip": "97523-4342"
-            }
-        }
-
-        $scope.mockServiceSecondaryReturn = {
-            "isValid": false,
-            "AutoOrderReturnAddressDto": {
-                "Address1": "1800 Gilroy Rd",
-                "Address2": "",
-                "City": "New Haven",
-                "State": "CT",
-                "Zip": "11112-4342"
-            }
-        }
-
-    }]);
-

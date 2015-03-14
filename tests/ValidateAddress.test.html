@@ -11,7 +11,7 @@
     <link href="../../Nerium.Global.Web/assets/vendor/qtip2/jquery.qtip.css" rel="stylesheet"/>
     <style>
         .test-scenario {
-            margin-top: 70px;
+            margin-top: 20px;
             margin-bottom: 20px;
             border: 1px solid lightblue;
         }
@@ -121,184 +121,44 @@
 </head>
 <body data-ng-app="app" style="padding: 2rem;">
 
-The button "Get Suggested Address" calls the GetSuggestedAddress method on the directive.
+<div data-ng-controller="address_array_ctrl" class="test-scenario">
 
-<div data-ng-controller="obj_2_Valid_ctrl" class="test-scenario">
-
-    <span class="test-name">obj_2_Valid</span>
-    <ul>
-        <li>Two address objects in parent scope</li>
-        <li>Service returns valid</li>
-        <li>Service does not return suggested address</li>
-        <li>Suggested address UI should not show up but the green Ready to Save indicator should show up </li>
-        <li>Parent address models should each update independently of each other</li>
-    </ul>
-
-    <span class="address-container">
-        <span class="address-description">Primary Address (id={{primaryAddressId}})</span>
-        <button ng-click="validAddressService.GetSuggestedAddress(primaryAddressId,   mockServicePrimaryReturn)">Get
-            Suggested Address
-        </button>
-
-        <input ng-model="myPrimaryAddress.firstName" placeholder="First Name" class="app-input">
-        <input ng-model="myPrimaryAddress.lastName" placeholder="Last Name" class="app-input">
-
-        <!-- ng-attr-address-dentifier = "primary" |"secondary" -->
-        <valid-address ng-attr-address="myPrimaryAddress"
-                       ng-attr-addressidentifier="{{primaryAddressId}}"
-                ></valid-address>
-        <input ng-model="myPrimaryAddress.address1" placeholder="address1" class="app-input">
-        <input ng-model="myPrimaryAddress.address2" placeholder="address2" class="app-input">
-        <input ng-model="myPrimaryAddress.city" placeholder="city" class="app-input">
-        <input ng-model="myPrimaryAddress.state" placeholder="state" class="app-input">
-        <input ng-model="myPrimaryAddress.zip" placeholder="zip" class="app-input">
-        <input ng-model="myPrimaryAddress.instructions" placeholder="Instructions" class="app-input">
-
-        <span class="underlying-model">
-            <span class="description">underlying model in parent</span>
-            {{myPrimaryAddress.firstName}} {{myPrimaryAddress.lastName}} {{myPrimaryAddress.address1}} {{myPrimaryAddress.address2}} {{myPrimaryAddress.city}} {{myPrimaryAddress.state}} {{myPrimaryAddress.zip}} {{myPrimaryAddress.instructions}}
-            <span ng-show="myPrimaryAddress.userApproved" class="submit-status ready">Ready to Save</span>
-            <span ng-hide="myPrimaryAddress.userApproved" class="submit-status not-ready">Not Ready to Save</span>
-        </span>
-         <span class="underlying-model mock-service-container">mockServicePrimaryReturn
-        {{mockServicePrimaryReturn}}
+    <span class="test-name">
+        check address suggestion for: <input type="text" data-ng-model="currentindex" style="width:50px">
+<button data-ng-click="runTest()">runTest</button>
     </span>
 
-    </span>
-
-    <span class="address-container">
-        <span class="address-description">Secondary Address</span>
-        <button ng-click="validAddressService.GetSuggestedAddress(secondaryAddressId, mockServiceSecondaryReturn)">Get
-            Suggested Address
-        </button>
-
-        <input ng-model="firstName" placeholder="First Name" class="app-input">
-        <input ng-model="lastName" placeholder="Last Name" class="app-input">
-        <valid-address ng-attr-address="mySecondaryAddress"
-                       ng-attr-addressidentifier="{{secondaryAddressId}}"
-                ></valid-address>
-        <input ng-model="mySecondaryAddress.address1" placeholder="address1" class="app-input">
-        <input ng-model="mySecondaryAddress.address2" placeholder="address2" class="app-input">
-        <input ng-model="mySecondaryAddress.city" placeholder="city" class="app-input">
-        <input ng-model="mySecondaryAddress.state" placeholder="state" class="app-input">
-        <input ng-model="mySecondaryAddress.zip" placeholder="zip" class="app-input">
-        <input ng-model="mySecondaryAddress.instructions" placeholder="Instructions" class="app-input">
-
-        <span class="underlying-model">
-            <span class="description">underlying model in parent</span>
-            {{mySecondaryAddress.firstName}} {{mySecondaryAddress.lastName}} {{mySecondaryAddress.address1}} {{mySecondaryAddress.address2}} {{mySecondaryAddress.city}} {{mySecondaryAddress.state}} {{mySecondaryAddress.zip}} {{mySecondaryAddress.instructions}}
-            <span ng-show="mySecondaryAddress.userApproved" class="submit-status ready">Ready to Save</span>
-            <span ng-hide="mySecondaryAddress.userApproved" class="submit-status not-ready">Not Ready to Save</span>
-        </span>
 
 
-    <span class="underlying-model mock-service-container">mockServiceSecondaryReturn
-        {{mockServiceSecondaryReturn}}
-    </span>
-    </span>
+    <div data-ng-repeat="addr in addresses" style="margin:30px;">
+        <input ng-model="addr.firstName" placeholder="First Name" class="app-input">
+        <input ng-model="addr.lastName" placeholder="Last Name" class="app-input">
+
+        <valid-address ng-attr-address="addr"></valid-address>
+
+        <input ng-model="addr.address1" placeholder="address1" class="app-input">
+        <input ng-model="addr.address2" placeholder="address2" class="app-input">
+        <input ng-model="addr.city" placeholder="city" class="app-input">
+        <input ng-model="addr.state" placeholder="state" class="app-input">
+        <input ng-model="addr.zip" placeholder="zip" class="app-input">
+        <input ng-model="addr.instructions" placeholder="Instructions" class="app-input">
+        <div style="font-size:smaller; color:gray">{{addr}}</div>
+    </div>
 
 
 </div>
-
-<div data-ng-controller="obj_2_notValid_ctrl" class="test-scenario">
-
-    <span class="test-name">obj_2_notValid</span>
-    <ul>
-        <li>Two address objects in parent scope</li>
-        <li>Service returns not valid</li>
-        <li>Service returns suggested address</li>
-        <li>Parent address models should each update independently of each other</li>
-    </ul>
-
-    <span class="address-container">
-        <span class="address-description">Primary Address (id={{primaryAddressId}})</span>
-        <button ng-click="validAddressService.GetSuggestedAddress(primaryAddressId,   mockServicePrimaryReturn)">Get
-            Suggested Address
-        </button>
-
-        <input ng-model="myPrimaryAddress.firstName" placeholder="First Name" class="app-input">
-        <input ng-model="myPrimaryAddress.lastName" placeholder="Last Name" class="app-input">
-
-        <!-- ng-attr-address-dentifier = "primary" |"secondary" -->
-        <valid-address ng-attr-address="myPrimaryAddress"
-                       ng-attr-addressidentifier="{{primaryAddressId}}"
-                ></valid-address>
-        <input ng-model="myPrimaryAddress.address1" placeholder="address1" class="app-input">
-        <input ng-model="myPrimaryAddress.address2" placeholder="address2" class="app-input">
-        <input ng-model="myPrimaryAddress.city" placeholder="city" class="app-input">
-        <input ng-model="myPrimaryAddress.state" placeholder="state" class="app-input">
-        <input ng-model="myPrimaryAddress.zip" placeholder="zip" class="app-input">
-        <input ng-model="myPrimaryAddress.instructions" placeholder="Instructions" class="app-input">
-
-        <span class="underlying-model">
-            <span class="description">underlying model in parent</span>
-            {{myPrimaryAddress.firstName}} {{myPrimaryAddress.lastName}} {{myPrimaryAddress.address1}} {{myPrimaryAddress.address2}} {{myPrimaryAddress.city}} {{myPrimaryAddress.state}} {{myPrimaryAddress.zip}} {{myPrimaryAddress.instructions}}
-            <span ng-show="myPrimaryAddress.userApproved" class="submit-status ready">Ready to Save</span>
-            <span ng-hide="myPrimaryAddress.userApproved" class="submit-status not-ready">Not Ready to Save</span>
-        </span>
-         <span class="underlying-model mock-service-container">mockServicePrimaryReturn
-        {{mockServicePrimaryReturn}}
-    </span>
-
-    </span>
-
-    <span class="address-container">
-        <span class="address-description">Secondary Address</span>
-        <button ng-click="validAddressService.GetSuggestedAddress(secondaryAddressId, mockServiceSecondaryReturn)">Get
-            Suggested Address
-        </button>
-
-        <input ng-model="firstName" placeholder="First Name" class="app-input">
-        <input ng-model="lastName" placeholder="Last Name" class="app-input">
-        <valid-address ng-attr-address="mySecondaryAddress"
-                       ng-attr-addressidentifier="{{secondaryAddressId}}"
-                ></valid-address>
-        <input ng-model="mySecondaryAddress.address1" placeholder="address1" class="app-input">
-        <input ng-model="mySecondaryAddress.address2" placeholder="address2" class="app-input">
-        <input ng-model="mySecondaryAddress.city" placeholder="city" class="app-input">
-        <input ng-model="mySecondaryAddress.state" placeholder="state" class="app-input">
-        <input ng-model="mySecondaryAddress.zip" placeholder="zip" class="app-input">
-        <input ng-model="mySecondaryAddress.instructions" placeholder="Instructions" class="app-input">
-
-        <span class="underlying-model">
-            <span class="description">underlying model in parent</span>
-            {{mySecondaryAddress.firstName}} {{mySecondaryAddress.lastName}} {{mySecondaryAddress.address1}} {{mySecondaryAddress.address2}} {{mySecondaryAddress.city}} {{mySecondaryAddress.state}} {{mySecondaryAddress.zip}} {{mySecondaryAddress.instructions}}
-            <span ng-show="mySecondaryAddress.userApproved" class="submit-status ready">Ready to Save</span>
-            <span ng-hide="mySecondaryAddress.userApproved" class="submit-status not-ready">Not Ready to Save</span>
-        </span>
-
-
-    <span class="underlying-model mock-service-container">mockServiceSecondaryReturn
-        {{mockServiceSecondaryReturn}}
-    </span>
-    </span>
-
-
-</div>
-
-
-<!-- THE CASE WHERE THERE ARE NO ADDRESS OBJECTS, ONLY ADDRESS PROPERTIES
-        FOR A SINGLE ADDRESS IN A PARENT SCOPE -->
-
-<!-- THE CASE WHERE THERE ARE 2 ADDRESS OBJECTS IN A PARENT SCOPE
-        AND THE SERVICE RETURNS SUGGESTED ADDRESSES FOR BOTH -->
-
-
-<!-- THE CASE WHERE THERE ARE 2 ADDRESS OBJECTS IN A PARENT SCOPE
-        AND THE SERVICE RETURNS A SUGGESTED ADDRESS FOR ONE
-        AND NO SUGGESTED ADDRESS FOR THE OTHER -->
-
-<!-- THE CASE WHERE THERE ARE 2 ADDRESS OBJECTS IN A PARENT SCOPE
-        AND THE SERVICE DOES NOT RETURN SUGGESTED ADDRESSES FOR EITHER -->
 
 
 <script src="../../Nerium.Global.Web/assets/vendor/jquery/dist/jquery.min.js"></script>
 <script src="../../Nerium.Global.Web/assets/vendor/angular.js"></script>
 
 <!-- ISOLATED UI DEV VENDOR SCRIPTS START -->
-
+<script src="../../StaticUiDev/tests/validAddress/app.js"></script>
+<script src="../../StaticUiDev/tests/validAddress/validAddressTestCtrl.js"></script>
 <script src="../../StaticUiDev/app/validAddress/validAddressDirective.js"></script>
 <script src="../../StaticUiDev/app/validAddress/validAddressService.js"></script>
+<script src="../../StaticUiDev/tests/validAddress/serverApiFake.js"></script>
+
 
 
 </body>
