@@ -33,7 +33,6 @@
                             .catch(
                             function (errrodata) {
                                 console.log('oh damn, ', errrodata)
-                                alert('oh, damn')
                             })
 
                         return deferred.promise;
