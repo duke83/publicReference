@@ -8,38 +8,80 @@
                     address: "=" // this is the address object from parent
                 },
 
-                templateUrl: "http://localhost:63342/Web/StaticUiDev/app/validAddress/ValidAddressDirective.html",// "ValidateAddressDirective.html",
+                templateUrl: "ValidAddressDirective.html",
                 controller: function ($scope, $q) {
-
-                    $scope.address.validityIdentifier = "validityIdentifier" + $scope.$id;
 
 
                     //Attach the function directly to the address so that the address can check for a suggested address
                     // at any point in it's processing path.
                     // Also, no need for a separate validAddressService.
 
-                    // WE REALLY DON'T NEED TO USE BROADCAST HERE. BUT WE REALLY SHOULD RETURN A PROMISE
-                    // Consumers of this address can bind to the promise
                     // The promise is resolved if the server returns isValid
                     // OR if the user has expressed approval to override server validation.
-                    $scope.address.hasApproval = function () {
-                        var deferred = $q.defer();
+                    //$scope.address.hasApproval = function () {
+                    //    var deferred = $q.defer();
+                    //
+                    //    serverApi.validateShippingAddress($scope.address)
+                    //        .then(function (data) {
+                    //            console.log('serverApi returns to .then ', data)
+                    //            $scope.ParentAddressFailsValidation=true;
+                    //            $scope.SuggestedAddress=true;
+                    //        })
+                    //        .catch(
+                    //        function (errrodata) {
+                    //            console.log('oh damn, ', errrodata)
+                    //        })
+                    //
+                    //    return deferred.promise;
+                    //};
+                    //
+                    //
 
-                        serverApi.validateShippingAddress($scope.address)
+
+                    // THIS PROMISE WILL BE RESOLVED WHEN
+                    // SOME EXTERNAL PROCESS CHECKS IF ADDRESS IS VALID
+                    var hasApproval_deferred = $q.defer();
+
+                    // THIS PROMISE WILL BE RESOLVED WHEN
+                    // USER SELECTS THE OK BUTTON
+                    var userInput_deferred = $q.defer();
+
+
+
+                    $scope.address.hasApproval = function () {
+                        $scope.ParentAddressFailsValidation=true;
+                        $scope.SuggestedAddress=true;
+
+                        return hasApproval_deferred.promise;
+                    }
+
+
+
+                    $scope.setUserInput = function () {
+                        console.log('setting user input.  about to resolve hasApproval_deferred');
+                        hasApproval_deferred.resolve({result:'test1'});
+                        //userInput_deferred.resolve({result: true})
+                    }
+
+
+                    function checkServer() {
+                        serverApi.validateShippingAddress($scope.address) //
                             .then(function (data) {
                                 console.log('serverApi returns to .then ', data)
-                                //alert ('then',data)
+
+                                //show UI if original address is not valid
+                                if (!data.isValid) {
+                                    $scope.ParentAddressFailsValidation = true;
+                                    //then, only allow address resolution when user clicks OK
+
+                                }
+                                $scope.SuggestedAddress = true;
                             })
                             .catch(
                             function (errrodata) {
                                 console.log('oh damn, ', errrodata)
                             })
 
-                        return deferred.promise;
-                    };
-
-                    $scope.setUserSelection = function () {
-                        $scope.address.userApproved = true;     //this setting indicates for future processing that this has user's approval
 
                     }
 

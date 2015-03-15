@@ -1,14 +1,17 @@
 var app = angular.module('app', []);
 
 
-app.controller('address_array_ctrl', ['$scope', function ($scope) {
+app.controller('validAddressTestCtrl', ['$scope', function ($scope) {
 
     $scope.currentindex = 0;
 
     $scope.runTest = function () {
         for (var i = 0; i < $scope.addresses.length; i++) {
             if (i === parseInt($scope.currentindex)) {
-                $scope.addresses[i].hasApproval($scope.addresses[i]);
+              $scope.addresses[i].hasApproval()
+                  .then(function(data){
+                    console.log('the resolution of approval is:', data)
+                })
             }
         }
 

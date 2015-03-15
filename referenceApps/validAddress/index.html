@@ -6,9 +6,9 @@
     <title>Auto Delivery Manager</title>
     <link href='http://fonts.googleapis.com/css?family=Source+Sans+Pro:200,300,400,600,700,900,200italic,300italic,400italic,600italic,700italic,900italic'
           rel='stylesheet' type='text/css'>
-    <link href="../../Nerium.Global.Web/assets/css/adomanager/main.css" rel="stylesheet"/>
+    <link href="../../../Nerium.Global.Web/assets/css/adomanager/main.css" rel="stylesheet"/>
     <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.1.0/css/font-awesome.min.css" rel="stylesheet">
-    <link href="../../Nerium.Global.Web/assets/vendor/qtip2/jquery.qtip.css" rel="stylesheet"/>
+    <link href="../../../Nerium.Global.Web/assets/vendor/qtip2/jquery.qtip.css" rel="stylesheet"/>
     <style>
         .test-scenario {
             margin-top: 20px;
@@ -121,7 +121,7 @@
 </head>
 <body data-ng-app="app" style="padding: 2rem;">
 
-<div data-ng-controller="address_array_ctrl" class="test-scenario">
+<div data-ng-controller="validAddressTestCtrl" class="test-scenario">
 
     <span class="test-name">
         check address suggestion for: <input type="text" data-ng-model="currentindex" style="width:50px">
@@ -149,15 +149,15 @@
 </div>
 
 
-<script src="../../Nerium.Global.Web/assets/vendor/jquery/dist/jquery.min.js"></script>
-<script src="../../Nerium.Global.Web/assets/vendor/angular.js"></script>
+<script src="../../../Nerium.Global.Web/assets/vendor/jquery/dist/jquery.min.js"></script>
+<script src="../../../Nerium.Global.Web/assets/vendor/angular.js"></script>
 
 <!-- ISOLATED UI DEV VENDOR SCRIPTS START -->
-<script src="../../StaticUiDev/tests/validAddress/app.js"></script>
-<script src="../../StaticUiDev/tests/validAddress/validAddressTestCtrl.js"></script>
-<script src="../../StaticUiDev/app/validAddress/validAddressDirective.js"></script>
-<script src="../../StaticUiDev/app/validAddress/validAddressService.js"></script>
-<script src="../../StaticUiDev/tests/validAddress/serverApiFake.js"></script>
+<script src="app.js"></script>
+<script src="validAddressTestCtrl.js"></script>
+<script src="validAddressDirective.js"></script>
+<script src="../../app/validAddress/validAddressService.js"></script>
+<script src="serverApiFake.js"></script>
 
 
 
